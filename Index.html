@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Study-AI | Smart Study Assistant</title>
+
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+    <!-- Navigation -->
+    <nav class="navbar">
+
+        <div class="brand">
+            <span class="brand-icon">🎓</span>
+            <span>Study-AI</span>
+        </div>
+
+        <button id="themeButton" class="icon-button">
+            🌙
+        </button>
+
+    </nav>
+
+
+    <!-- Main -->
+    <main class="container">
+
+        <!-- Hero -->
+        <section class="hero">
+
+            <div class="hero-badge">
+                ✨ AI-powered learning
+            </div>
+
+            <h1>
+                Learn smarter.<br>
+                <span>Study better.</span>
+            </h1>
+
+            <p>
+                Your personal study companion for learning,
+                revision and productivity.
+            </p>
+
+        </section>
+
+
+        <!-- Dashboard -->
+        <section class="dashboard">
+
+            <!-- Goal Card -->
+            <div class="card goal-card">
+
+                <div class="card-top">
+
+                    <div>
+                        <p class="label">TODAY'S GOAL</p>
+
+                        <h2 id="goalText">
+                            0 min
+                        </h2>
+                    </div>
+
+                    <div class="circle-icon">
+                        🎯
+                    </div>
+
+                </div>
+
+                <div class="progress-container">
+
+                    <div
+                        id="progressBar"
+                        class="progress-bar">
+                    </div>
+
+                </div>
+
+                <p id="progressText">
+                    0% of your 120 minute goal
+                </p>
+
+                <button
+                    id="addTime"
+                    class="primary-button">
+
+                    +25 Minutes
+
+                </button>
+
+            </div>
+
+
+            <!-- AI Card -->
+            <div class="card ai-card">
+
+                <p class="label">
+                    AI STUDY ASSISTANT
+                </p>
+
+                <h2>
+                    Ask Study-AI 🤖
+                </h2>
+
+                <p class="card-description">
+                    Ask anything about your studies.
+                </p>
+
+
+                <div class="question-box">
+
+                    <textarea
+                        id="question"
+                        placeholder="Example: Explain photosynthesis in simple words..."
+                        rows="4">
+                    </textarea>
+
+
+                    <button
+                        id="askButton"
+                        class="primary-button">
+
+                        Ask AI ✨
+
+                    </button>
+
+                </div>
+
+
+                <div
+                    id="answer"
+                    class="answer-box">
+
+                    <div class="answer-icon">
+                        🤖
+                    </div>
+
+                    <div>
+                        <strong>Study-AI</strong>
+
+                        <p>
+                            Ask me a study question and
+                            I'll help you understand it.
+                        </p>
+                    </div>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- Features -->
+        <section class="section">
+
+            <div class="section-heading">
+
+                <div>
+                    <p class="label">STUDY TOOLS</p>
+
+                    <h2>
+                        Everything you need to learn
+                    </h2>
+                </div>
+
+            </div>
+
+
+            <div class="feature-grid">
+
+
+                <div class="feature-card">
+
+                    <div class="feature-icon">
+                        📚
+                    </div>
+
+                    <h3>
+                        Smart Notes
+                    </h3>
+
+                    <p>
+                        Keep your important study
+                        notes organized.
+                    </p>
+
+                    <button class="feature-button">
+                        Coming Soon
+                    </button>
+
+                </div>
+
+
+                <div class="feature-card">
+
+                    <div class="feature-icon">
+                        🧠
+                    </div>
+
+                    <h3>
+                        AI Quiz
+                    </h3>
+
+                    <p>
+                        Test your knowledge with
+                        personalized quizzes.
+                    </p>
+
+                    <button class="feature-button">
+                        Coming Soon
+                    </button>
+
+                </div>
+
+
+                <div class="feature-card">
+
+                    <div class="feature-icon">
+                        🎯
+                    </div>
+
+                    <h3>
+                        Study Goals
+                    </h3>
+
+                    <p>
+                        Track your daily study
+                        progress.
+                    </p>
+
+                    <button class="feature-button">
+                        Active
+                    </button>
+
+                </div>
+
+
+                <div class="feature-card">
+
+                    <div class="feature-icon">
+                        🤖
+                    </div>
+
+                    <h3>
+                        AI Tutor
+                    </h3>
+
+                    <p>
+                        Get explanations for
+                        difficult topics.
+                    </p>
+
+                    <button class="feature-button">
+                        Demo
+                    </button>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- Quick Actions -->
+        <section class="card quick-card">
+
+            <div>
+
+                <p class="label">
+                    QUICK START
+                </p>
+
+                <h2>
+                    Ready to study?
+                </h2>
+
+                <p>
+                    Add 25 minutes to your study goal
+                    and start your session.
+                </p>
+
+            </div>
+
+
+            <button
+                id="quickStart"
+                class="primary-button">
+
+                Start Studying 🚀
+
+            </button>
+
+        </section>
+
+
+    </main>
+
+
+    <!-- Footer -->
+    <footer>
+
+        <div class="footer-logo">
+            🎓 Study-AI
+        </div>
+
+        <p>
+            Built for students who want to learn smarter.
+        </p>
+
+        <small>
+            Study-AI v0.1
+        </small>
+
+    </footer>
+
+
+    <script src="script.js"></script>
+
+</body>
+</html>
