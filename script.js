@@ -1,7 +1,7 @@
 /* =========================
    STUDY-AI
    JavaScript
-   Version 0.1
+   Version 0.2
 ========================= */
 
 
@@ -9,29 +9,22 @@
    STUDY GOAL
 ========================= */
 
-
 let studyMinutes =
     Number(localStorage.getItem("studyMinutes")) || 0;
 
-
 const DAILY_GOAL = 120;
-
 
 const goalText =
     document.getElementById("goalText");
 
-
 const progressBar =
     document.getElementById("progressBar");
-
 
 const progressText =
     document.getElementById("progressText");
 
-
 const addTime =
     document.getElementById("addTime");
-
 
 const quickStart =
     document.getElementById("quickStart");
@@ -42,23 +35,18 @@ function updateStudyGoal() {
     goalText.textContent =
         `${studyMinutes} min`;
 
-
     let percentage =
         (studyMinutes / DAILY_GOAL) * 100;
-
 
     if (percentage > 100) {
         percentage = 100;
     }
 
-
     progressBar.style.width =
         `${percentage}%`;
 
-
     progressText.textContent =
         `${Math.round(percentage)}% of your ${DAILY_GOAL} minute goal`;
-
 
     localStorage.setItem(
         "studyMinutes",
@@ -102,14 +90,11 @@ updateStudyGoal();
    AI STUDY ASSISTANT
 ========================= */
 
-
 const question =
     document.getElementById("question");
 
-
 const askButton =
     document.getElementById("askButton");
-
 
 const answer =
     document.getElementById("answer");
@@ -126,7 +111,7 @@ function escapeHTML(text) {
 }
 
 
-function askStudyAI() {
+async function askStudyAI() {
 
     const userQuestion =
         question.value.trim();
@@ -163,10 +148,42 @@ function askStudyAI() {
     `;
 
 
-    setTimeout(function () {
+    try {
 
-        const safeQuestion =
-            escapeHTML(userQuestion);
+        const response =
+            await fetch("/api/chat", {
+
+                method: "POST",
+
+                headers: {
+                    "Content-Type": "application/json"
+                },
+
+                body: JSON.stringify({
+                    message: userQuestion
+                })
+
+            });
+
+
+        const data =
+            await response.json();
+
+
+        if (!response.ok) {
+
+            throw new Error(
+                data.error || "AI request failed"
+            );
+
+        }
+
+
+        const safeAnswer =
+            escapeHTML(
+                data.answer ||
+                "No answer received."
+            );
 
 
         answer.innerHTML = `
@@ -175,22 +192,33 @@ function askStudyAI() {
             <div>
                 <strong>Study-AI</strong>
 
-                <p>
-                    You asked:
-                    <strong>${safeQuestion}</strong>
-                </p>
+                <p>${safeAnswer}</p>
+            </div>
+        `;
 
-                <p style="margin-top:8px;">
-                    This is currently a demo.
-                    In the next version, we'll connect
-                    Study-AI to a real AI model so it can
-                    generate explanations, summaries,
-                    quizzes and more.
+
+    } catch (error) {
+
+        console.error(
+            "Study-AI error:",
+            error
+        );
+
+
+        answer.innerHTML = `
+            <div class="answer-icon">⚠️</div>
+
+            <div>
+                <strong>Study-AI</strong>
+
+                <p>
+                    Sorry, I couldn't connect to the AI right now.
+                    Please try again.
                 </p>
             </div>
         `;
 
-    }, 800);
+    }
 
 }
 
@@ -224,10 +252,8 @@ question.addEventListener(
    DARK MODE
 ========================= */
 
-
 const themeButton =
     document.getElementById("themeButton");
-
 
 const savedTheme =
     localStorage.getItem("theme");
@@ -238,6 +264,7 @@ if (savedTheme === "dark") {
     document.body.classList.add("dark");
 
     themeButton.textContent = "☀️";
+
 }
 
 
