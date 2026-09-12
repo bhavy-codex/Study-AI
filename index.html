@@ -11,26 +11,33 @@
 <script>
 tailwind.config = {
     darkMode: "class"
-}
+};
 </script>
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 
-<link rel="stylesheet"
-href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+<link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+    rel="stylesheet"
+>
+
+<link
+    rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"
+>
 
 <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 
 <style>
+
 * {
     box-sizing: border-box;
 }
 
 body {
     font-family: "Inter", sans-serif;
-    transition: background .25s, color .25s;
+    transition: background-color .25s, color .25s;
 }
 
 ::-webkit-scrollbar {
@@ -47,6 +54,7 @@ body {
 }
 
 @keyframes messageIn {
+
     from {
         opacity: 0;
         transform: translateY(6px);
@@ -56,6 +64,7 @@ body {
         opacity: 1;
         transform: translateY(0);
     }
+
 }
 
 .ai-content p {
@@ -98,12 +107,41 @@ body {
     overflow-x: auto;
     margin: 10px 0;
 }
+
+.thinking-dot {
+    animation: thinking 1.2s infinite;
+}
+
+.thinking-dot:nth-child(2) {
+    animation-delay: .15s;
+}
+
+.thinking-dot:nth-child(3) {
+    animation-delay: .3s;
+}
+
+@keyframes thinking {
+
+    0%, 60%, 100% {
+        opacity: .3;
+    }
+
+    30% {
+        opacity: 1;
+    }
+
+}
+
 </style>
 </head>
 
+
 <body class="bg-[#f8f8f8] dark:bg-[#0d0f12] text-gray-900 dark:text-gray-100 min-h-screen">
 
-<!-- TOP BAR -->
+
+<!-- =========================
+     TOP BAR
+========================= -->
 
 <header class="h-14 border-b border-gray-200 dark:border-gray-800 bg-white/90 dark:bg-[#0d0f12]/90 backdrop-blur-md sticky top-0 z-50">
 
@@ -136,7 +174,8 @@ body {
 
             <button
                 onclick="toggleDarkMode()"
-                class="w-8 h-8 rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center">
+                class="w-8 h-8 rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center"
+                title="Toggle dark mode">
 
                 <i id="themeIcon" class="fa-regular fa-moon text-sm"></i>
 
@@ -149,11 +188,15 @@ body {
 </header>
 
 
-<!-- CHAT AREA -->
+
+<!-- =========================
+     CHAT AREA
+========================= -->
 
 <main class="max-w-3xl mx-auto px-4 min-h-[calc(100vh-56px)] flex flex-col">
 
-    <!-- Welcome -->
+
+    <!-- WELCOME -->
 
     <div
         id="welcome"
@@ -165,18 +208,27 @@ body {
 
         </div>
 
+
         <h1 class="text-3xl sm:text-4xl font-bold tracking-tight mb-3">
+
             What do you want to learn?
+
         </h1>
 
+
         <p class="text-sm text-gray-500 dark:text-gray-400">
+
             Ask Study-AI anything about your studies.
+
         </p>
 
     </div>
 
 
-    <!-- MESSAGES -->
+
+    <!-- =========================
+         MESSAGES
+    ========================= -->
 
     <div
         id="messages"
@@ -185,11 +237,16 @@ body {
     </div>
 
 
-    <!-- INPUT AREA -->
+
+    <!-- =========================
+         INPUT
+    ========================= -->
 
     <div class="sticky bottom-0 pb-5 pt-3 bg-gradient-to-t from-[#f8f8f8] dark:from-[#0d0f12] via-[#f8f8f8] dark:via-[#0d0f12] to-transparent">
 
+
         <div class="bg-white dark:bg-[#16191e] border border-gray-200 dark:border-gray-800 rounded-2xl shadow-sm overflow-hidden">
+
 
             <textarea
                 id="userPrompt"
@@ -202,17 +259,23 @@ body {
 
             <div class="flex items-center justify-between px-3 pb-3 pt-1">
 
+
                 <div class="flex items-center gap-2">
+
+
+                    <!-- MATH -->
 
                     <button
                         onclick="insertMath()"
                         class="w-8 h-8 rounded-lg bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 flex items-center justify-center"
-                        title="Math">
+                        title="Math equation">
 
                         <i class="fa-solid fa-calculator text-xs"></i>
 
                     </button>
 
+
+                    <!-- EXPLAIN -->
 
                     <button
                         onclick="quickQuestion('Explain this topic in simple words.')"
@@ -223,6 +286,8 @@ body {
                     </button>
 
 
+                    <!-- SOLVE -->
+
                     <button
                         onclick="quickQuestion('Solve this step-by-step and explain the answer.')"
                         class="hidden sm:block px-3 py-1.5 rounded-lg bg-gray-100 dark:bg-gray-800 text-xs hover:bg-gray-200 dark:hover:bg-gray-700">
@@ -231,8 +296,12 @@ body {
 
                     </button>
 
+
                 </div>
 
+
+
+                <!-- SEND -->
 
                 <button
                     id="sendButton"
@@ -243,13 +312,16 @@ body {
 
                 </button>
 
+
             </div>
 
         </div>
 
 
         <p class="text-center text-[10px] text-gray-400 mt-2">
+
             Study-AI can make mistakes. Check important answers.
+
         </p>
 
     </div>
@@ -257,13 +329,16 @@ body {
 </main>
 
 
+
 <script>
+
 
 /* =========================
    CHAT DATA
 ========================= */
 
 let chatHistory = [];
+
 
 
 /* =========================
@@ -282,6 +357,7 @@ function toggleDarkMode() {
     );
 
     updateThemeIcon();
+
 }
 
 
@@ -289,6 +365,9 @@ function updateThemeIcon() {
 
     const icon =
         document.getElementById("themeIcon");
+
+    if (!icon) return;
+
 
     if (
         document.documentElement.classList.contains("dark")
@@ -303,16 +382,38 @@ function updateThemeIcon() {
             "fa-regular fa-moon text-sm";
 
     }
+
 }
 
 
-if (localStorage.getItem("theme") === "dark") {
+/* Load saved theme */
+
+if (
+    localStorage.getItem("theme") === "dark"
+) {
 
     document.documentElement.classList.add("dark");
 
 }
 
+
 updateThemeIcon();
+
+
+
+/* =========================
+   SCROLL
+========================= */
+
+function scrollToBottom() {
+
+    window.scrollTo({
+        top: document.body.scrollHeight,
+        behavior: "smooth"
+    });
+
+}
+
 
 
 /* =========================
@@ -335,8 +436,9 @@ function handleKeyDown(event) {
 }
 
 
+
 /* =========================
-   QUICK QUESTIONS
+   QUICK QUESTION
 ========================= */
 
 function quickQuestion(text) {
@@ -351,6 +453,11 @@ function quickQuestion(text) {
 }
 
 
+
+/* =========================
+   MATH BUTTON
+========================= */
+
 function insertMath() {
 
     const input =
@@ -364,8 +471,9 @@ function insertMath() {
 }
 
 
+
 /* =========================
-   ADD USER MESSAGE
+   USER MESSAGE
 ========================= */
 
 function addUserMessage(text) {
@@ -373,11 +481,14 @@ function addUserMessage(text) {
     const messages =
         document.getElementById("messages");
 
+
     const message =
         document.createElement("div");
 
+
     message.className =
         "chat-message flex justify-end";
+
 
     message.innerHTML = `
 
@@ -393,11 +504,13 @@ function addUserMessage(text) {
 
     `;
 
+
     messages.appendChild(message);
 
     scrollToBottom();
 
 }
+
 
 
 /* =========================
@@ -409,19 +522,24 @@ function addLoadingMessage() {
     const messages =
         document.getElementById("messages");
 
+
     const message =
         document.createElement("div");
 
-    message.id = "loadingMessage";
+
+    message.id =
+        "loadingMessage";
+
 
     message.className =
         "chat-message flex justify-start";
 
+
     message.innerHTML = `
 
-        <div class="max-w-[90%]">
+        <div class="max-w-[92%]">
 
-            <div class="bg-white dark:bg-[#16191e] border border-gray-200 dark:border-gray-800 px-4 py-3 rounded-2xl rounded-bl-md shadow-sm">
+            <div class="bg-white dark:bg-[#16191e] border border-gray-200 dark:border-gray-800 px-4 py-4 rounded-2xl rounded-bl-md shadow-sm">
 
                 <div class="flex items-center gap-2">
 
@@ -435,13 +553,14 @@ function addLoadingMessage() {
 
                 </div>
 
+
                 <div class="flex gap-1 mt-3">
 
-                    <span class="w-1.5 h-1.5 rounded-full bg-gray-400 animate-bounce"></span>
+                    <span class="thinking-dot w-1.5 h-1.5 rounded-full bg-gray-400"></span>
 
-                    <span class="w-1.5 h-1.5 rounded-full bg-gray-400 animate-bounce [animation-delay:150ms]"></span>
+                    <span class="thinking-dot w-1.5 h-1.5 rounded-full bg-gray-400"></span>
 
-                    <span class="w-1.5 h-1.5 rounded-full bg-gray-400 animate-bounce [animation-delay:300ms]"></span>
+                    <span class="thinking-dot w-1.5 h-1.5 rounded-full bg-gray-400"></span>
 
                 </div>
 
@@ -451,11 +570,13 @@ function addLoadingMessage() {
 
     `;
 
+
     messages.appendChild(message);
 
     scrollToBottom();
 
 }
+
 
 
 /* =========================
@@ -467,10 +588,37 @@ function replaceLoadingMessage(text) {
     const loading =
         document.getElementById("loadingMessage");
 
+
     if (!loading) return;
 
 
-    let html = marked.parse(text);
+    let html;
+
+
+    try {
+
+        if (
+            typeof marked !== "undefined"
+        ) {
+
+            html =
+                marked.parse(text);
+
+        } else {
+
+            html =
+                escapeHTML(text)
+                    .replace(/\n/g, "<br>");
+
+        }
+
+    } catch {
+
+        html =
+            escapeHTML(text)
+                .replace(/\n/g, "<br>");
+
+    }
 
 
     loading.innerHTML = `
@@ -479,20 +627,36 @@ function replaceLoadingMessage(text) {
 
             <div class="bg-white dark:bg-[#16191e] border border-gray-200 dark:border-gray-800 px-4 py-4 rounded-2xl rounded-bl-md shadow-sm">
 
-                <div class="flex items-center gap-2 mb-3">
+                <div class="flex items-center justify-between mb-3">
 
-                    <div class="w-6 h-6 rounded-lg bg-black dark:bg-white text-white dark:text-black flex items-center justify-center text-[10px]">
-                        S
+                    <div class="flex items-center gap-2">
+
+                        <div class="w-6 h-6 rounded-lg bg-black dark:bg-white text-white dark:text-black flex items-center justify-center text-[10px]">
+                            S
+                        </div>
+
+                        <span class="text-xs font-semibold">
+                            Study-AI
+                        </span>
+
                     </div>
 
-                    <span class="text-xs font-semibold">
-                        Study-AI
-                    </span>
+
+                    <button
+                        onclick="copyAI(this)"
+                        class="w-7 h-7 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 flex items-center justify-center text-gray-400">
+
+                        <i class="fa-regular fa-copy text-xs"></i>
+
+                    </button>
 
                 </div>
 
+
                 <div class="ai-content text-sm leading-6">
+
                     ${html}
+
                 </div>
 
             </div>
@@ -501,9 +665,11 @@ function replaceLoadingMessage(text) {
 
     `;
 
+
     scrollToBottom();
 
 }
+
 
 
 /* =========================
@@ -514,6 +680,7 @@ async function sendMessage() {
 
     const input =
         document.getElementById("userPrompt");
+
 
     const text =
         input.value.trim();
@@ -532,19 +699,21 @@ async function sendMessage() {
         .getElementById("welcome")
         .classList.add("hidden");
 
+
     document
         .getElementById("messages")
         .classList.remove("hidden");
 
 
-    /* User message */
+    /* Add user message */
 
     addUserMessage(text);
+
 
     input.value = "";
 
 
-    /* Loading */
+    /* Add loading */
 
     addLoadingMessage();
 
@@ -552,23 +721,24 @@ async function sendMessage() {
     button.disabled = true;
 
 
-    chatHistory.push({
-        role: "user",
-        parts: [
-            {
-                text: text
-            }
-        ]
-    });
+    button.innerHTML =
+        '<i class="fa-solid fa-spinner fa-spin text-xs"></i>';
 
 
     try {
 
+
         /*
          * IMPORTANT:
-         * This connects to your existing Vercel backend.
-         * Your Gemini API key stays on Vercel.
+         *
+         * The Gemini API key is NOT here.
+         *
+         * This calls your Vercel backend:
+         *
+         * /api/chat
+         *
          */
+
 
         const response =
             await fetch("/api/chat", {
@@ -581,62 +751,189 @@ async function sendMessage() {
                 },
 
                 body: JSON.stringify({
+
                     message: text
+
                 })
 
             });
 
 
-        const data =
-            await response.json();
+
+        /* Read server response */
+
+        const rawText =
+            await response.text();
 
 
-        if (!response.ok) {
+        let data;
+
+
+        try {
+
+            data =
+                JSON.parse(rawText);
+
+        } catch {
 
             throw new Error(
-                data.error ||
-                "AI request failed"
+                "Server returned an invalid response."
             );
 
         }
 
 
-        const answer =
-            data.answer ||
-            "Sorry, I couldn't generate an answer.";
 
+        /* Check HTTP error */
+
+        if (!response.ok) {
+
+            throw new Error(
+
+                data.error ||
+                `Server error: ${response.status}`
+
+            );
+
+        }
+
+
+
+        /* Check AI answer */
+
+        if (
+            !data.answer ||
+            typeof data.answer !== "string"
+        ) {
+
+            throw new Error(
+                "AI returned no answer."
+            );
+
+        }
+
+
+
+        /* Save conversation locally */
 
         chatHistory.push({
-            role: "model",
+
+            role: "user",
+
             parts: [
                 {
-                    text: answer
+                    text: text
                 }
             ]
+
         });
 
 
-        replaceLoadingMessage(answer);
+        chatHistory.push({
+
+            role: "model",
+
+            parts: [
+                {
+                    text: data.answer
+                }
+            ]
+
+        });
+
+
+
+        /* Show answer */
+
+        replaceLoadingMessage(
+            data.answer
+        );
 
 
     } catch (error) {
 
-        console.error(error);
+
+        console.error(
+            "Study-AI Error:",
+            error
+        );
 
 
         replaceLoadingMessage(
-            "⚠️ Sorry, I couldn't connect to Study-AI. Please try again."
+
+            "⚠️ **Study-AI Error**\n\n" +
+            escapeMarkdown(error.message)
+
         );
+
 
     } finally {
 
+
         button.disabled = false;
+
+
+        button.innerHTML =
+            '<i class="fa-solid fa-arrow-up text-xs"></i>';
+
 
         input.focus();
 
     }
 
 }
+
+
+
+/* =========================
+   COPY AI RESPONSE
+========================= */
+
+function copyAI(button) {
+
+    const card =
+        button.closest(".bg-white");
+
+
+    if (!card) return;
+
+
+    const content =
+        card.querySelector(".ai-content");
+
+
+    if (!content) return;
+
+
+    const text =
+        content.innerText;
+
+
+    navigator.clipboard.writeText(text)
+        .then(() => {
+
+            button.innerHTML =
+                '<i class="fa-solid fa-check text-green-500 text-xs"></i>';
+
+
+            setTimeout(() => {
+
+                button.innerHTML =
+                    '<i class="fa-regular fa-copy text-xs"></i>';
+
+            }, 1500);
+
+        })
+        .catch(() => {
+
+            alert(
+                "Could not copy the answer."
+            );
+
+        });
+
+}
+
 
 
 /* =========================
@@ -647,17 +944,21 @@ function clearChat() {
 
     chatHistory = [];
 
+
     document.getElementById(
         "messages"
     ).innerHTML = "";
+
 
     document.getElementById(
         "messages"
     ).classList.add("hidden");
 
+
     document.getElementById(
         "welcome"
     ).classList.remove("hidden");
+
 
     document.getElementById(
         "userPrompt"
@@ -666,8 +967,9 @@ function clearChat() {
 }
 
 
+
 /* =========================
-   SECURITY
+   ESCAPE HTML
 ========================= */
 
 function escapeHTML(text) {
@@ -675,9 +977,26 @@ function escapeHTML(text) {
     const div =
         document.createElement("div");
 
-    div.textContent = text;
+    div.textContent =
+        text;
 
     return div.innerHTML;
+
+}
+
+
+
+/* =========================
+   ESCAPE MARKDOWN
+========================= */
+
+function escapeMarkdown(text) {
+
+    return String(text)
+        .replace(/\\/g, "\\\\")
+        .replace(/\*/g, "\\*")
+        .replace(/_/g, "\\_")
+        .replace(/`/g, "\\`");
 
 }
 
