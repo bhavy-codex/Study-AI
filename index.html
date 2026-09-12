@@ -1,385 +1,687 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>Study-AI | Your AI Study Partner</title>
+<title>Study-AI Chat</title>
 
-    <link rel="stylesheet" href="style.css">
+<script src="https://cdn.tailwindcss.com"></script>
+
+<script>
+tailwind.config = {
+    darkMode: "class"
+}
+</script>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+<link rel="stylesheet"
+href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+
+<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+
+<style>
+* {
+    box-sizing: border-box;
+}
+
+body {
+    font-family: "Inter", sans-serif;
+    transition: background .25s, color .25s;
+}
+
+::-webkit-scrollbar {
+    width: 6px;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #c7c7c7;
+    border-radius: 20px;
+}
+
+.chat-message {
+    animation: messageIn .2s ease;
+}
+
+@keyframes messageIn {
+    from {
+        opacity: 0;
+        transform: translateY(6px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.ai-content p {
+    margin: 0 0 10px;
+}
+
+.ai-content p:last-child {
+    margin-bottom: 0;
+}
+
+.ai-content ul,
+.ai-content ol {
+    margin: 8px 0;
+    padding-left: 22px;
+}
+
+.ai-content li {
+    margin: 5px 0;
+}
+
+.ai-content strong {
+    font-weight: 700;
+}
+
+.ai-content code {
+    background: #f1f1f1;
+    padding: 2px 5px;
+    border-radius: 5px;
+}
+
+.dark .ai-content code {
+    background: #292d33;
+}
+
+.ai-content pre {
+    background: #111;
+    color: white;
+    padding: 14px;
+    border-radius: 10px;
+    overflow-x: auto;
+    margin: 10px 0;
+}
+</style>
 </head>
 
-<body>
+<body class="bg-[#f8f8f8] dark:bg-[#0d0f12] text-gray-900 dark:text-gray-100 min-h-screen">
 
-    <!-- TOP BAR -->
-    <header class="topbar">
+<!-- TOP BAR -->
 
-        <div class="brand">
-            <div class="brand-mark">S</div>
-            <span>Study-AI</span>
+<header class="h-14 border-b border-gray-200 dark:border-gray-800 bg-white/90 dark:bg-[#0d0f12]/90 backdrop-blur-md sticky top-0 z-50">
+
+    <div class="max-w-4xl mx-auto h-full px-4 flex items-center justify-between">
+
+        <div class="flex items-center gap-2">
+
+            <div class="w-8 h-8 rounded-lg bg-black dark:bg-white text-white dark:text-black flex items-center justify-center font-bold">
+                S
+            </div>
+
+            <span class="font-bold">
+                Study-AI
+            </span>
+
         </div>
 
-        <button id="themeButton" class="theme-button" aria-label="Toggle dark mode">
-            🌙
-        </button>
 
-    </header>
+        <div class="flex items-center gap-2">
 
+            <button
+                onclick="clearChat()"
+                class="w-8 h-8 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 flex items-center justify-center"
+                title="New chat">
 
-    <!-- MAIN -->
-    <main class="app">
+                <i class="fa-solid fa-plus text-xs"></i>
 
-        <!-- WELCOME -->
-        <section class="welcome">
-
-            <div class="welcome-icon">
-                ✦
-            </div>
-
-            <h1>
-                What do you want to
-                <span>learn today?</span>
-            </h1>
-
-            <p>
-                Ask Study-AI anything. Get simple explanations,
-                examples and exam-ready answers.
-            </p>
-
-        </section>
-
-
-        <!-- AI CHAT -->
-        <section class="chat-section">
-
-            <div class="chat-card">
-
-                <div class="chat-header">
-
-                    <div class="ai-avatar">
-                        ✦
-                    </div>
-
-                    <div>
-                        <strong>Study-AI</strong>
-                        <span>Your AI study partner</span>
-                    </div>
-
-                </div>
-
-
-                <!-- ANSWER -->
-                <div id="answer" class="answer-box">
-
-                    <div class="answer-avatar">
-                        ✦
-                    </div>
-
-                    <div class="answer-content">
-
-                        <strong>Study-AI</strong>
-
-                        <p>
-                            Ask me a study question and
-                            I'll help you understand it.
-                        </p>
-
-                    </div>
-
-                </div>
-
-
-                <!-- INPUT -->
-                <div class="input-area">
-
-                    <textarea
-                        id="question"
-                        placeholder="Ask anything about your studies..."
-                        rows="1"
-                        aria-label="Study question">
-                    </textarea>
-
-
-                    <div class="input-bottom">
-
-                        <div class="input-tools">
-
-                            <button
-                                class="tool-button"
-                                title="Coming soon">
-                                +
-                            </button>
-
-                            <button
-                                class="tool-button tool-text"
-                                title="Coming soon">
-                                Study Tools
-                            </button>
-
-                        </div>
-
-
-                        <button
-                            id="askButton"
-                            class="send-button">
-
-                            <span>Ask AI</span>
-                            <span>↑</span>
-
-                        </button>
-
-                    </div>
-
-                </div>
-
-            </div>
-
-        </section>
-
-
-        <!-- QUICK PROMPTS -->
-        <section class="prompts">
-
-            <button class="prompt-card">
-                Explain a topic
-                <span>→</span>
             </button>
 
-            <button class="prompt-card">
-                Help with homework
-                <span>→</span>
+
+            <button
+                onclick="toggleDarkMode()"
+                class="w-8 h-8 rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center">
+
+                <i id="themeIcon" class="fa-regular fa-moon text-sm"></i>
+
             </button>
 
-            <button class="prompt-card">
-                Create exam questions
-                <span>→</span>
-            </button>
-
-        </section>
-
-
-        <!-- STUDY DASHBOARD -->
-        <section class="dashboard">
-
-            <div class="dashboard-header">
-
-                <div>
-                    <p class="eyebrow">YOUR STUDY SPACE</p>
-
-                    <h2>
-                        Keep learning.
-                    </h2>
-                </div>
-
-            </div>
-
-
-            <div class="dashboard-grid">
-
-                <!-- GOAL -->
-                <div class="study-card goal-card">
-
-                    <div class="card-icon">
-                        🎯
-                    </div>
-
-                    <p class="eyebrow">
-                        TODAY'S GOAL
-                    </p>
-
-                    <h3 id="goalText">
-                        0 min
-                    </h3>
-
-                    <div class="progress-container">
-
-                        <div
-                            id="progressBar"
-                            class="progress-bar">
-                        </div>
-
-                    </div>
-
-                    <p id="progressText" class="muted">
-                        0% of your 120 minute goal
-                    </p>
-
-                    <button
-                        id="addTime"
-                        class="secondary-button">
-
-                        +25 Minutes
-
-                    </button>
-
-                </div>
-
-
-                <!-- QUICK START -->
-                <div class="study-card quick-card">
-
-                    <div class="card-icon">
-                        🚀
-                    </div>
-
-                    <p class="eyebrow">
-                        QUICK START
-                    </p>
-
-                    <h3>
-                        Ready to study?
-                    </h3>
-
-                    <p class="muted">
-                        Start a focused study session
-                        and build your daily streak.
-                    </p>
-
-                    <button
-                        id="quickStart"
-                        class="secondary-button">
-
-                        Start Studying
-
-                    </button>
-
-                </div>
-
-            </div>
-
-        </section>
-
-
-        <!-- STUDY TOOLS -->
-        <section class="tools-section">
-
-            <div class="section-heading">
-
-                <div>
-                    <p class="eyebrow">
-                        STUDY TOOLS
-                    </p>
-
-                    <h2>
-                        More ways to learn
-                    </h2>
-                </div>
-
-            </div>
-
-
-            <div class="tools-grid">
-
-                <div class="tool-card">
-
-                    <div class="tool-icon">
-                        📝
-                    </div>
-
-                    <h3>
-                        Smart Notes
-                    </h3>
-
-                    <p>
-                        Organize and simplify your notes.
-                    </p>
-
-                    <span class="coming">
-                        Coming Soon
-                    </span>
-
-                </div>
-
-
-                <div class="tool-card">
-
-                    <div class="tool-icon">
-                        🧠
-                    </div>
-
-                    <h3>
-                        AI Quiz
-                    </h3>
-
-                    <p>
-                        Test yourself with smart quizzes.
-                    </p>
-
-                    <span class="coming">
-                        Coming Soon
-                    </span>
-
-                </div>
-
-
-                <div class="tool-card">
-
-                    <div class="tool-icon">
-                        📄
-                    </div>
-
-                    <h3>
-                        PDF AI
-                    </h3>
-
-                    <p>
-                        Understand your study PDFs faster.
-                    </p>
-
-                    <span class="coming">
-                        Coming Soon
-                    </span>
-
-                </div>
-
-
-                <div class="tool-card">
-
-                    <div class="tool-icon">
-                        👨‍🏫
-                    </div>
-
-                    <h3>
-                        AI Tutor
-                    </h3>
-
-                    <p>
-                        Get help with difficult topics.
-                    </p>
-
-                    <span class="active">
-                        Available
-                    </span>
-
-                </div>
-
-            </div>
-
-        </section>
-
-    </main>
-
-
-    <!-- FOOTER -->
-    <footer>
-
-        <div class="footer-brand">
-            <div class="brand-mark">S</div>
-            <strong>Study-AI</strong>
         </div>
 
-        <p>
-            Built for students who want to learn smarter.
+    </div>
+
+</header>
+
+
+<!-- CHAT AREA -->
+
+<main class="max-w-3xl mx-auto px-4 min-h-[calc(100vh-56px)] flex flex-col">
+
+    <!-- Welcome -->
+
+    <div
+        id="welcome"
+        class="flex-1 flex flex-col items-center justify-center text-center pb-32">
+
+        <div class="w-12 h-12 rounded-2xl bg-black dark:bg-white text-white dark:text-black flex items-center justify-center mb-5 shadow-sm">
+
+            <i class="fa-solid fa-sparkles"></i>
+
+        </div>
+
+        <h1 class="text-3xl sm:text-4xl font-bold tracking-tight mb-3">
+            What do you want to learn?
+        </h1>
+
+        <p class="text-sm text-gray-500 dark:text-gray-400">
+            Ask Study-AI anything about your studies.
         </p>
 
-        <small>
-            Study-AI v0.2
-        </small>
-
-    </footer>
+    </div>
 
 
-    <script src="script.js"></script>
+    <!-- MESSAGES -->
+
+    <div
+        id="messages"
+        class="flex-1 py-6 space-y-6 hidden">
+
+    </div>
+
+
+    <!-- INPUT AREA -->
+
+    <div class="sticky bottom-0 pb-5 pt-3 bg-gradient-to-t from-[#f8f8f8] dark:from-[#0d0f12] via-[#f8f8f8] dark:via-[#0d0f12] to-transparent">
+
+        <div class="bg-white dark:bg-[#16191e] border border-gray-200 dark:border-gray-800 rounded-2xl shadow-sm overflow-hidden">
+
+            <textarea
+                id="userPrompt"
+                rows="2"
+                placeholder="Message Study-AI..."
+                class="w-full px-4 pt-4 pb-2 bg-transparent outline-none resize-none text-sm placeholder-gray-400 dark:placeholder-gray-500"
+                onkeydown="handleKeyDown(event)">
+            </textarea>
+
+
+            <div class="flex items-center justify-between px-3 pb-3 pt-1">
+
+                <div class="flex items-center gap-2">
+
+                    <button
+                        onclick="insertMath()"
+                        class="w-8 h-8 rounded-lg bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 flex items-center justify-center"
+                        title="Math">
+
+                        <i class="fa-solid fa-calculator text-xs"></i>
+
+                    </button>
+
+
+                    <button
+                        onclick="quickQuestion('Explain this topic in simple words.')"
+                        class="hidden sm:block px-3 py-1.5 rounded-lg bg-gray-100 dark:bg-gray-800 text-xs hover:bg-gray-200 dark:hover:bg-gray-700">
+
+                        Explain
+
+                    </button>
+
+
+                    <button
+                        onclick="quickQuestion('Solve this step-by-step and explain the answer.')"
+                        class="hidden sm:block px-3 py-1.5 rounded-lg bg-gray-100 dark:bg-gray-800 text-xs hover:bg-gray-200 dark:hover:bg-gray-700">
+
+                        Solve
+
+                    </button>
+
+                </div>
+
+
+                <button
+                    id="sendButton"
+                    onclick="sendMessage()"
+                    class="w-9 h-9 rounded-xl bg-black dark:bg-white text-white dark:text-black flex items-center justify-center hover:opacity-80 disabled:opacity-40">
+
+                    <i class="fa-solid fa-arrow-up text-xs"></i>
+
+                </button>
+
+            </div>
+
+        </div>
+
+
+        <p class="text-center text-[10px] text-gray-400 mt-2">
+            Study-AI can make mistakes. Check important answers.
+        </p>
+
+    </div>
+
+</main>
+
+
+<script>
+
+/* =========================
+   CHAT DATA
+========================= */
+
+let chatHistory = [];
+
+
+/* =========================
+   DARK MODE
+========================= */
+
+function toggleDarkMode() {
+
+    document.documentElement.classList.toggle("dark");
+
+    localStorage.setItem(
+        "theme",
+        document.documentElement.classList.contains("dark")
+            ? "dark"
+            : "light"
+    );
+
+    updateThemeIcon();
+}
+
+
+function updateThemeIcon() {
+
+    const icon =
+        document.getElementById("themeIcon");
+
+    if (
+        document.documentElement.classList.contains("dark")
+    ) {
+
+        icon.className =
+            "fa-regular fa-sun text-sm";
+
+    } else {
+
+        icon.className =
+            "fa-regular fa-moon text-sm";
+
+    }
+}
+
+
+if (localStorage.getItem("theme") === "dark") {
+
+    document.documentElement.classList.add("dark");
+
+}
+
+updateThemeIcon();
+
+
+/* =========================
+   ENTER KEY
+========================= */
+
+function handleKeyDown(event) {
+
+    if (
+        event.key === "Enter" &&
+        !event.shiftKey
+    ) {
+
+        event.preventDefault();
+
+        sendMessage();
+
+    }
+
+}
+
+
+/* =========================
+   QUICK QUESTIONS
+========================= */
+
+function quickQuestion(text) {
+
+    const input =
+        document.getElementById("userPrompt");
+
+    input.value = text;
+
+    input.focus();
+
+}
+
+
+function insertMath() {
+
+    const input =
+        document.getElementById("userPrompt");
+
+    input.value =
+        "Solve this equation step-by-step: 2x² + 5x - 3 = 0";
+
+    input.focus();
+
+}
+
+
+/* =========================
+   ADD USER MESSAGE
+========================= */
+
+function addUserMessage(text) {
+
+    const messages =
+        document.getElementById("messages");
+
+    const message =
+        document.createElement("div");
+
+    message.className =
+        "chat-message flex justify-end";
+
+    message.innerHTML = `
+
+        <div class="max-w-[85%]">
+
+            <div class="bg-black dark:bg-white text-white dark:text-black px-4 py-3 rounded-2xl rounded-br-md text-sm leading-relaxed">
+
+                ${escapeHTML(text)}
+
+            </div>
+
+        </div>
+
+    `;
+
+    messages.appendChild(message);
+
+    scrollToBottom();
+
+}
+
+
+/* =========================
+   AI LOADING
+========================= */
+
+function addLoadingMessage() {
+
+    const messages =
+        document.getElementById("messages");
+
+    const message =
+        document.createElement("div");
+
+    message.id = "loadingMessage";
+
+    message.className =
+        "chat-message flex justify-start";
+
+    message.innerHTML = `
+
+        <div class="max-w-[90%]">
+
+            <div class="bg-white dark:bg-[#16191e] border border-gray-200 dark:border-gray-800 px-4 py-3 rounded-2xl rounded-bl-md shadow-sm">
+
+                <div class="flex items-center gap-2">
+
+                    <div class="w-6 h-6 rounded-lg bg-black dark:bg-white text-white dark:text-black flex items-center justify-center text-[10px]">
+                        S
+                    </div>
+
+                    <span class="text-xs font-semibold">
+                        Study-AI
+                    </span>
+
+                </div>
+
+                <div class="flex gap-1 mt-3">
+
+                    <span class="w-1.5 h-1.5 rounded-full bg-gray-400 animate-bounce"></span>
+
+                    <span class="w-1.5 h-1.5 rounded-full bg-gray-400 animate-bounce [animation-delay:150ms]"></span>
+
+                    <span class="w-1.5 h-1.5 rounded-full bg-gray-400 animate-bounce [animation-delay:300ms]"></span>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    `;
+
+    messages.appendChild(message);
+
+    scrollToBottom();
+
+}
+
+
+/* =========================
+   AI RESPONSE
+========================= */
+
+function replaceLoadingMessage(text) {
+
+    const loading =
+        document.getElementById("loadingMessage");
+
+    if (!loading) return;
+
+
+    let html = marked.parse(text);
+
+
+    loading.innerHTML = `
+
+        <div class="max-w-[92%]">
+
+            <div class="bg-white dark:bg-[#16191e] border border-gray-200 dark:border-gray-800 px-4 py-4 rounded-2xl rounded-bl-md shadow-sm">
+
+                <div class="flex items-center gap-2 mb-3">
+
+                    <div class="w-6 h-6 rounded-lg bg-black dark:bg-white text-white dark:text-black flex items-center justify-center text-[10px]">
+                        S
+                    </div>
+
+                    <span class="text-xs font-semibold">
+                        Study-AI
+                    </span>
+
+                </div>
+
+                <div class="ai-content text-sm leading-6">
+                    ${html}
+                </div>
+
+            </div>
+
+        </div>
+
+    `;
+
+    scrollToBottom();
+
+}
+
+
+/* =========================
+   SEND MESSAGE
+========================= */
+
+async function sendMessage() {
+
+    const input =
+        document.getElementById("userPrompt");
+
+    const text =
+        input.value.trim();
+
+
+    if (!text) return;
+
+
+    const button =
+        document.getElementById("sendButton");
+
+
+    /* Show chat */
+
+    document
+        .getElementById("welcome")
+        .classList.add("hidden");
+
+    document
+        .getElementById("messages")
+        .classList.remove("hidden");
+
+
+    /* User message */
+
+    addUserMessage(text);
+
+    input.value = "";
+
+
+    /* Loading */
+
+    addLoadingMessage();
+
+
+    button.disabled = true;
+
+
+    chatHistory.push({
+        role: "user",
+        parts: [
+            {
+                text: text
+            }
+        ]
+    });
+
+
+    try {
+
+        /*
+         * IMPORTANT:
+         * This connects to your existing Vercel backend.
+         * Your Gemini API key stays on Vercel.
+         */
+
+        const response =
+            await fetch("/api/chat", {
+
+                method: "POST",
+
+                headers: {
+                    "Content-Type":
+                        "application/json"
+                },
+
+                body: JSON.stringify({
+                    message: text
+                })
+
+            });
+
+
+        const data =
+            await response.json();
+
+
+        if (!response.ok) {
+
+            throw new Error(
+                data.error ||
+                "AI request failed"
+            );
+
+        }
+
+
+        const answer =
+            data.answer ||
+            "Sorry, I couldn't generate an answer.";
+
+
+        chatHistory.push({
+            role: "model",
+            parts: [
+                {
+                    text: answer
+                }
+            ]
+        });
+
+
+        replaceLoadingMessage(answer);
+
+
+    } catch (error) {
+
+        console.error(error);
+
+
+        replaceLoadingMessage(
+            "⚠️ Sorry, I couldn't connect to Study-AI. Please try again."
+        );
+
+    } finally {
+
+        button.disabled = false;
+
+        input.focus();
+
+    }
+
+}
+
+
+/* =========================
+   CLEAR CHAT
+========================= */
+
+function clearChat() {
+
+    chatHistory = [];
+
+    document.getElementById(
+        "messages"
+    ).innerHTML = "";
+
+    document.getElementById(
+        "messages"
+    ).classList.add("hidden");
+
+    document.getElementById(
+        "welcome"
+    ).classList.remove("hidden");
+
+    document.getElementById(
+        "userPrompt"
+    ).value = "";
+
+}
+
+
+/* =========================
+   SECURITY
+========================= */
+
+function escapeHTML(text) {
+
+    const div =
+        document.createElement("div");
+
+    div.textContent = text;
+
+    return div.innerHTML;
+
+}
+
+</script>
 
 </body>
 </html>
