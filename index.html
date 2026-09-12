@@ -4,148 +4,130 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>Study-AI | Smart Study Assistant</title>
+    <title>Study-AI | Your AI Study Partner</title>
 
     <link rel="stylesheet" href="style.css">
 </head>
 
 <body>
 
-    <!-- Navigation -->
-    <nav class="navbar">
+    <!-- TOP BAR -->
+    <header class="topbar">
 
         <div class="brand">
-            <span class="brand-icon">🎓</span>
+            <div class="brand-mark">S</div>
             <span>Study-AI</span>
         </div>
 
-        <button id="themeButton" class="icon-button">
+        <button id="themeButton" class="theme-button" aria-label="Toggle dark mode">
             🌙
         </button>
 
-    </nav>
+    </header>
 
 
-    <!-- Main -->
-    <main class="container">
+    <!-- MAIN -->
+    <main class="app">
 
-        <!-- Hero -->
-        <section class="hero">
+        <!-- WELCOME -->
+        <section class="welcome">
 
-            <div class="hero-badge">
-                ✨ AI-powered learning
+            <div class="welcome-icon">
+                ✦
             </div>
 
             <h1>
-                Learn smarter.<br>
-                <span>Study better.</span>
+                What do you want to
+                <span>learn today?</span>
             </h1>
 
             <p>
-                Your personal study companion for learning,
-                revision and productivity.
+                Ask Study-AI anything. Get simple explanations,
+                examples and exam-ready answers.
             </p>
 
         </section>
 
 
-        <!-- Dashboard -->
-        <section class="dashboard">
+        <!-- AI CHAT -->
+        <section class="chat-section">
 
-            <!-- Goal Card -->
-            <div class="card goal-card">
+            <div class="chat-card">
 
-                <div class="card-top">
+                <div class="chat-header">
 
-                    <div>
-                        <p class="label">TODAY'S GOAL</p>
-
-                        <h2 id="goalText">
-                            0 min
-                        </h2>
-                    </div>
-
-                    <div class="circle-icon">
-                        🎯
-                    </div>
-
-                </div>
-
-                <div class="progress-container">
-
-                    <div
-                        id="progressBar"
-                        class="progress-bar">
-                    </div>
-
-                </div>
-
-                <p id="progressText">
-                    0% of your 120 minute goal
-                </p>
-
-                <button
-                    id="addTime"
-                    class="primary-button">
-
-                    +25 Minutes
-
-                </button>
-
-            </div>
-
-
-            <!-- AI Card -->
-            <div class="card ai-card">
-
-                <p class="label">
-                    AI STUDY ASSISTANT
-                </p>
-
-                <h2>
-                    Ask Study-AI 🤖
-                </h2>
-
-                <p class="card-description">
-                    Ask anything about your studies.
-                </p>
-
-
-                <div class="question-box">
-
-                    <textarea
-                        id="question"
-                        placeholder="Example: Explain photosynthesis in simple words..."
-                        rows="4">
-                    </textarea>
-
-
-                    <button
-                        id="askButton"
-                        class="primary-button">
-
-                        Ask AI ✨
-
-                    </button>
-
-                </div>
-
-
-                <div
-                    id="answer"
-                    class="answer-box">
-
-                    <div class="answer-icon">
-                        🤖
+                    <div class="ai-avatar">
+                        ✦
                     </div>
 
                     <div>
+                        <strong>Study-AI</strong>
+                        <span>Your AI study partner</span>
+                    </div>
+
+                </div>
+
+
+                <!-- ANSWER -->
+                <div id="answer" class="answer-box">
+
+                    <div class="answer-avatar">
+                        ✦
+                    </div>
+
+                    <div class="answer-content">
+
                         <strong>Study-AI</strong>
 
                         <p>
                             Ask me a study question and
                             I'll help you understand it.
                         </p>
+
+                    </div>
+
+                </div>
+
+
+                <!-- INPUT -->
+                <div class="input-area">
+
+                    <textarea
+                        id="question"
+                        placeholder="Ask anything about your studies..."
+                        rows="1"
+                        aria-label="Study question">
+                    </textarea>
+
+
+                    <div class="input-bottom">
+
+                        <div class="input-tools">
+
+                            <button
+                                class="tool-button"
+                                title="Coming soon">
+                                +
+                            </button>
+
+                            <button
+                                class="tool-button tool-text"
+                                title="Coming soon">
+                                Study Tools
+                            </button>
+
+                        </div>
+
+
+                        <button
+                            id="askButton"
+                            class="send-button">
+
+                            <span>Ask AI</span>
+                            <span>↑</span>
+
+                        </button>
+
                     </div>
 
                 </div>
@@ -155,29 +137,143 @@
         </section>
 
 
-        <!-- Features -->
-        <section class="section">
+        <!-- QUICK PROMPTS -->
+        <section class="prompts">
 
-            <div class="section-heading">
+            <button class="prompt-card">
+                Explain a topic
+                <span>→</span>
+            </button>
+
+            <button class="prompt-card">
+                Help with homework
+                <span>→</span>
+            </button>
+
+            <button class="prompt-card">
+                Create exam questions
+                <span>→</span>
+            </button>
+
+        </section>
+
+
+        <!-- STUDY DASHBOARD -->
+        <section class="dashboard">
+
+            <div class="dashboard-header">
 
                 <div>
-                    <p class="label">STUDY TOOLS</p>
+                    <p class="eyebrow">YOUR STUDY SPACE</p>
 
                     <h2>
-                        Everything you need to learn
+                        Keep learning.
                     </h2>
                 </div>
 
             </div>
 
 
-            <div class="feature-grid">
+            <div class="dashboard-grid">
+
+                <!-- GOAL -->
+                <div class="study-card goal-card">
+
+                    <div class="card-icon">
+                        🎯
+                    </div>
+
+                    <p class="eyebrow">
+                        TODAY'S GOAL
+                    </p>
+
+                    <h3 id="goalText">
+                        0 min
+                    </h3>
+
+                    <div class="progress-container">
+
+                        <div
+                            id="progressBar"
+                            class="progress-bar">
+                        </div>
+
+                    </div>
+
+                    <p id="progressText" class="muted">
+                        0% of your 120 minute goal
+                    </p>
+
+                    <button
+                        id="addTime"
+                        class="secondary-button">
+
+                        +25 Minutes
+
+                    </button>
+
+                </div>
 
 
-                <div class="feature-card">
+                <!-- QUICK START -->
+                <div class="study-card quick-card">
 
-                    <div class="feature-icon">
-                        📚
+                    <div class="card-icon">
+                        🚀
+                    </div>
+
+                    <p class="eyebrow">
+                        QUICK START
+                    </p>
+
+                    <h3>
+                        Ready to study?
+                    </h3>
+
+                    <p class="muted">
+                        Start a focused study session
+                        and build your daily streak.
+                    </p>
+
+                    <button
+                        id="quickStart"
+                        class="secondary-button">
+
+                        Start Studying
+
+                    </button>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- STUDY TOOLS -->
+        <section class="tools-section">
+
+            <div class="section-heading">
+
+                <div>
+                    <p class="eyebrow">
+                        STUDY TOOLS
+                    </p>
+
+                    <h2>
+                        More ways to learn
+                    </h2>
+                </div>
+
+            </div>
+
+
+            <div class="tools-grid">
+
+                <div class="tool-card">
+
+                    <div class="tool-icon">
+                        📝
                     </div>
 
                     <h3>
@@ -185,20 +281,19 @@
                     </h3>
 
                     <p>
-                        Keep your important study
-                        notes organized.
+                        Organize and simplify your notes.
                     </p>
 
-                    <button class="feature-button">
+                    <span class="coming">
                         Coming Soon
-                    </button>
+                    </span>
 
                 </div>
 
 
-                <div class="feature-card">
+                <div class="tool-card">
 
-                    <div class="feature-icon">
+                    <div class="tool-icon">
                         🧠
                     </div>
 
@@ -207,43 +302,41 @@
                     </h3>
 
                     <p>
-                        Test your knowledge with
-                        personalized quizzes.
+                        Test yourself with smart quizzes.
                     </p>
 
-                    <button class="feature-button">
+                    <span class="coming">
                         Coming Soon
-                    </button>
+                    </span>
 
                 </div>
 
 
-                <div class="feature-card">
+                <div class="tool-card">
 
-                    <div class="feature-icon">
-                        🎯
+                    <div class="tool-icon">
+                        📄
                     </div>
 
                     <h3>
-                        Study Goals
+                        PDF AI
                     </h3>
 
                     <p>
-                        Track your daily study
-                        progress.
+                        Understand your study PDFs faster.
                     </p>
 
-                    <button class="feature-button">
-                        Active
-                    </button>
+                    <span class="coming">
+                        Coming Soon
+                    </span>
 
                 </div>
 
 
-                <div class="feature-card">
+                <div class="tool-card">
 
-                    <div class="feature-icon">
-                        🤖
+                    <div class="tool-icon">
+                        👨‍🏫
                     </div>
 
                     <h3>
@@ -251,13 +344,12 @@
                     </h3>
 
                     <p>
-                        Get explanations for
-                        difficult topics.
+                        Get help with difficult topics.
                     </p>
 
-                    <button class="feature-button">
-                        Demo
-                    </button>
+                    <span class="active">
+                        Available
+                    </span>
 
                 </div>
 
@@ -265,47 +357,15 @@
 
         </section>
 
-
-        <!-- Quick Actions -->
-        <section class="card quick-card">
-
-            <div>
-
-                <p class="label">
-                    QUICK START
-                </p>
-
-                <h2>
-                    Ready to study?
-                </h2>
-
-                <p>
-                    Add 25 minutes to your study goal
-                    and start your session.
-                </p>
-
-            </div>
-
-
-            <button
-                id="quickStart"
-                class="primary-button">
-
-                Start Studying 🚀
-
-            </button>
-
-        </section>
-
-
     </main>
 
 
-    <!-- Footer -->
+    <!-- FOOTER -->
     <footer>
 
-        <div class="footer-logo">
-            🎓 Study-AI
+        <div class="footer-brand">
+            <div class="brand-mark">S</div>
+            <strong>Study-AI</strong>
         </div>
 
         <p>
@@ -313,7 +373,7 @@
         </p>
 
         <small>
-            Study-AI v0.1
+            Study-AI v0.2
         </small>
 
     </footer>
