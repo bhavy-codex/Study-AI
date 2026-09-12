@@ -1,12 +1,7 @@
 /* =========================
    STUDY-AI
    JavaScript
-   Version 0.4
-========================= */
-
-
-/* =========================
-   STUDY GOAL
+   Version 0.5
 ========================= */
 
 let studyMinutes =
@@ -14,74 +9,48 @@ let studyMinutes =
 
 const DAILY_GOAL = 120;
 
-const goalText =
-    document.getElementById("goalText");
-
-const progressBar =
-    document.getElementById("progressBar");
-
-const progressText =
-    document.getElementById("progressText");
-
-const addTime =
-    document.getElementById("addTime");
-
-const quickStart =
-    document.getElementById("quickStart");
-
+const goalText = document.getElementById("goalText");
+const progressBar = document.getElementById("progressBar");
+const progressText = document.getElementById("progressText");
+const addTime = document.getElementById("addTime");
+const quickStart = document.getElementById("quickStart");
 
 function updateStudyGoal() {
+    if (!goalText || !progressBar || !progressText) return;
 
-    goalText.textContent =
-        `${studyMinutes} min`;
+    goalText.textContent = `${studyMinutes} min`;
 
-    let percentage =
-        (studyMinutes / DAILY_GOAL) * 100;
+    let percentage = (studyMinutes / DAILY_GOAL) * 100;
 
     if (percentage > 100) {
         percentage = 100;
     }
 
-    progressBar.style.width =
-        `${percentage}%`;
+    progressBar.style.width = `${percentage}%`;
 
     progressText.textContent =
         `${Math.round(percentage)}% of your ${DAILY_GOAL} minute goal`;
 
-    localStorage.setItem(
-        "studyMinutes",
-        studyMinutes
-    );
+    localStorage.setItem("studyMinutes", studyMinutes);
 }
 
-
-addTime.addEventListener(
-    "click",
-    function () {
-
+if (addTime) {
+    addTime.addEventListener("click", () => {
         studyMinutes += 25;
-
         updateStudyGoal();
+    });
+}
 
-    }
-);
-
-
-quickStart.addEventListener(
-    "click",
-    function () {
-
+if (quickStart) {
+    quickStart.addEventListener("click", () => {
         studyMinutes += 25;
-
         updateStudyGoal();
 
         alert(
             "Study session started! You added 25 minutes to today's goal."
         );
-
-    }
-);
-
+    });
+}
 
 updateStudyGoal();
 
@@ -90,24 +59,13 @@ updateStudyGoal();
    AI STUDY ASSISTANT
 ========================= */
 
-const question =
-    document.getElementById("question");
+const question = document.getElementById("question");
+const askButton = document.getElementById("askButton");
+const answer = document.getElementById("answer");
 
-const askButton =
-    document.getElementById("askButton");
-
-const answer =
-    document.getElementById("answer");
-
-
-/* =========================
-   MARKDOWN RENDERER
-========================= */
 
 function escapeHTML(text) {
-
-    const div =
-        document.createElement("div");
+    const div = document.createElement("div");
 
     div.textContent = text;
 
@@ -123,31 +81,14 @@ function formatAIResponse(text) {
 
     let html = escapeHTML(text);
 
-    /*
-       Code blocks
-       ```code```
-    */
+    /* Bold */
 
     html = html.replace(
-        /```([\s\S]*?)```/g,
-        function (_, code) {
-
-            return `
-                <pre class="ai-code">
-                    <code>${code.trim()}</code>
-                </pre>
-            `;
-
-        }
+        /\*\*(.*?)\*\*/g,
+        "<strong>$1</strong>"
     );
 
-
-    /*
-       Headings
-       ### Heading
-       ## Heading
-       # Heading
-    */
+    /* Headings */
 
     html = html.replace(
         /^### (.*)$/gm,
@@ -161,75 +102,13 @@ function formatAIResponse(text) {
 
     html = html.replace(
         /^# (.*)$/gm,
-        "<h3>$1</h3>"
+        "<h2>$1</h2>"
     );
 
-
-    /*
-       Bold
-       **text**
-    */
+    /* Bullet points */
 
     html = html.replace(
-        /\*\*(.*?)\*\*/g,
-        "<strong>$1</strong>"
-    );
-
-
-    /*
-       Italic
-       *text*
-    */
-
-    html = html.replace(
-        /(^|[^\*])\*([^*\n]+)\*(?!\*)/g,
-        "$1<em>$2</em>"
-    );
-
-
-    /*
-       Numbered lists
-       1. Item
-       2. Item
-    */
-
-    html = html.replace(
-        /(?:^|\n)((?:\d+\.\s.+\n?)+)/g,
-        function (_, list) {
-
-            const items =
-                list
-                    .trim()
-                    .split("\n")
-                    .map(item =>
-                        item.replace(
-                            /^\d+\.\s+/,
-                            ""
-                        )
-                    )
-                    .map(item =>
-                        `<li>${item}</li>`
-                    )
-                    .join("");
-
-            return `
-                <ol class="ai-list">
-                    ${items}
-                </ol>
-            `;
-
-        }
-    );
-
-
-    /*
-       Bullet lists
-       - Item
-       * Item
-    */
-
-    html = html.replace(
-        /(?:^|\n)((?:[-•]\s.+\n?)+)/g,
+        /(?:^|\n)((?:[-•]\s.+(?:\n|$))+)/g,
         function (_, list) {
 
             const items =
@@ -252,35 +131,50 @@ function formatAIResponse(text) {
                     ${items}
                 </ul>
             `;
-
         }
     );
 
-
-    /*
-       Line breaks
-    */
+    /* Numbered list */
 
     html = html.replace(
-        /\n{2,}/g,
-        "</p><p>"
+        /(?:^|\n)((?:\d+\.\s.+(?:\n|$))+)/g,
+        function (_, list) {
+
+            const items =
+                list
+                    .trim()
+                    .split("\n")
+                    .map(item =>
+                        item.replace(
+                            /^\d+\.\s+/,
+                            ""
+                        )
+                    )
+                    .map(item =>
+                        `<li>${item}</li>`
+                    )
+                    .join("");
+
+            return `
+                <ol class="ai-list">
+                    ${items}
+                </ol>
+            `;
+        }
     );
+
+    /* Line breaks */
 
     html = html.replace(
         /\n/g,
         "<br>"
     );
 
-
-    /*
-       Wrap normal text in paragraphs
-    */
-
-    html =
-        `<div class="ai-response">${html}</div>`;
-
-
-    return html;
+    return `
+        <div class="ai-response">
+            ${html}
+        </div>
+    `;
 }
 
 
@@ -289,6 +183,10 @@ function formatAIResponse(text) {
 ========================= */
 
 async function askStudyAI() {
+
+    if (!question || !askButton || !answer) {
+        return;
+    }
 
     const userQuestion =
         question.value.trim();
@@ -316,7 +214,7 @@ async function askStudyAI() {
     }
 
 
-    /* Loading state */
+    /* Loading */
 
     answer.innerHTML = `
         <div class="answer-avatar">
@@ -327,7 +225,7 @@ async function askStudyAI() {
 
             <strong>Study-AI</strong>
 
-            <p>
+            <p class="thinking">
                 Thinking...
             </p>
 
@@ -347,49 +245,43 @@ async function askStudyAI() {
                     method: "POST",
 
                     headers: {
-                        "Content-Type": "application/json"
+                        "Content-Type":
+                            "application/json"
                     },
 
                     body: JSON.stringify({
-                        message: userQuestion
+                        message:
+                            userQuestion
                     })
                 }
             );
 
 
-        let data = {};
-
-
-        try {
-
-            data =
-                await response.json();
-
-        } catch (jsonError) {
-
-            throw new Error(
-                `Server returned ${response.status} but not valid JSON.`
-            );
-
-        }
+        const data =
+            await response.json();
 
 
         if (!response.ok) {
 
             throw new Error(
                 data?.error ||
-                `AI request failed with status ${response.status}`
+                `AI request failed: ${response.status}`
             );
 
         }
 
 
-        const aiAnswer =
-            data?.answer ||
-            "No answer received from Gemini.";
+        if (
+            !data.answer ||
+            typeof data.answer !== "string"
+        ) {
 
+            throw new Error(
+                "Gemini returned no answer."
+            );
 
-        /* Professional AI response */
+        }
+
 
         answer.innerHTML = `
             <div class="answer-avatar">
@@ -398,9 +290,17 @@ async function askStudyAI() {
 
             <div class="answer-content">
 
-                <strong>Study-AI</strong>
+                <div class="answer-header">
 
-                ${formatAIResponse(aiAnswer)}
+                    <strong>
+                        Study-AI
+                    </strong>
+
+                </div>
+
+                ${formatAIResponse(
+                    data.answer
+                )}
 
             </div>
         `;
@@ -414,13 +314,6 @@ async function askStudyAI() {
         );
 
 
-        const errorMessage =
-            escapeHTML(
-                error?.message ||
-                "Unknown error"
-            );
-
-
         answer.innerHTML = `
             <div class="answer-avatar">
                 ⚠️
@@ -428,10 +321,15 @@ async function askStudyAI() {
 
             <div class="answer-content">
 
-                <strong>Study-AI</strong>
+                <strong>
+                    Study-AI
+                </strong>
 
                 <p>
-                    ${errorMessage}
+                    ${escapeHTML(
+                        error.message ||
+                        "Unable to connect to AI."
+                    )}
                 </p>
 
             </div>
@@ -450,30 +348,108 @@ async function askStudyAI() {
    ASK BUTTON
 ========================= */
 
-askButton.addEventListener(
-    "click",
-    askStudyAI
-);
+if (askButton) {
+
+    askButton.addEventListener(
+        "click",
+        askStudyAI
+    );
+
+}
 
 
 /* =========================
    ENTER KEY
 ========================= */
 
-question.addEventListener(
-    "keydown",
-    function (event) {
+if (question) {
 
-        if (
-            event.key === "Enter" &&
-            !event.shiftKey
-        ) {
+    question.addEventListener(
+        "keydown",
+        function (event) {
 
-            event.preventDefault();
+            if (
+                event.key === "Enter" &&
+                !event.shiftKey
+            ) {
 
-            askStudyAI();
+                event.preventDefault();
+
+                askStudyAI();
+
+            }
 
         }
+    );
+
+}
+
+
+/* =========================
+   QUICK PROMPTS
+========================= */
+
+const promptCards =
+    document.querySelectorAll(
+        ".prompt-card"
+    );
+
+
+promptCards.forEach(
+    function (button) {
+
+        button.addEventListener(
+            "click",
+            function () {
+
+                if (!question) {
+                    return;
+                }
+
+                const text =
+                    button.textContent
+                        .replace("→", "")
+                        .trim();
+
+
+                if (
+                    text.includes(
+                        "Explain a topic"
+                    )
+                ) {
+
+                    question.value =
+                        "Explain a difficult topic in simple words.";
+
+                }
+
+                else if (
+                    text.includes(
+                        "Help with homework"
+                    )
+                ) {
+
+                    question.value =
+                        "Help me solve my homework step by step.";
+
+                }
+
+                else if (
+                    text.includes(
+                        "Create exam questions"
+                    )
+                ) {
+
+                    question.value =
+                        "Create important exam questions from this topic.";
+
+                }
+
+
+                question.focus();
+
+            }
+        );
 
     }
 );
@@ -484,10 +460,72 @@ question.addEventListener(
 ========================= */
 
 const themeButton =
-    document.getElementById("themeButton");
+    document.getElementById(
+        "themeButton"
+    );
 
 const savedTheme =
-    localStorage.getItem("theme");
+    localStorage.getItem(
+        "theme"
+    );
 
 
 if (
+    savedTheme === "dark"
+) {
+
+    document.body.classList.add(
+        "dark"
+    );
+
+}
+
+
+function updateThemeButton() {
+
+    if (!themeButton) {
+        return;
+    }
+
+    themeButton.textContent =
+        document.body.classList.contains("dark")
+            ? "☀️"
+            : "🌙";
+
+}
+
+
+updateThemeButton();
+
+
+if (themeButton) {
+
+    themeButton.addEventListener(
+        "click",
+        function () {
+
+            document.body.classList.toggle(
+                "dark"
+            );
+
+
+            const darkMode =
+                document.body.classList.contains(
+                    "dark"
+                );
+
+
+            localStorage.setItem(
+                "theme",
+                darkMode
+                    ? "dark"
+                    : "light"
+            );
+
+
+            updateThemeButton();
+
+        }
+    );
+
+}
