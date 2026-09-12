@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Study-AI Chat</title>
+<title>Study-AI</title>
 
 <script src="https://cdn.tailwindcss.com"></script>
 
@@ -29,7 +29,18 @@ tailwind.config = {
 
 <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 
+<!-- PDF.js -->
+<script
+    src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.4.168/pdf.min.mjs"
+    type="module">
+</script>
+
+<!-- Tesseract OCR -->
+<script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
+
+
 <style>
+
 * {
     box-sizing: border-box;
 }
@@ -53,6 +64,7 @@ body {
 }
 
 @keyframes messageIn {
+
     from {
         opacity: 0;
         transform: translateY(6px);
@@ -62,6 +74,7 @@ body {
         opacity: 1;
         transform: translateY(0);
     }
+
 }
 
 .ai-content p {
@@ -118,6 +131,7 @@ body {
 }
 
 @keyframes thinking {
+
     0%, 60%, 100% {
         opacity: .3;
     }
@@ -125,7 +139,22 @@ body {
     30% {
         opacity: 1;
     }
+
 }
+
+.pdf-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    padding: 7px 10px;
+    border-radius: 10px;
+    font-size: 12px;
+}
+
+.progress-bar {
+    transition: width .25s ease;
+}
+
 </style>
 </head>
 
@@ -134,7 +163,7 @@ body {
 
 
 <!-- =========================
-     TOP BAR
+     HEADER
 ========================= -->
 
 <header class="h-14 border-b border-gray-200 dark:border-gray-800 bg-white/90 dark:bg-[#0d0f12]/90 backdrop-blur-md sticky top-0 z-50">
@@ -156,8 +185,6 @@ body {
 
         <div class="flex items-center gap-2">
 
-            <!-- NEW CHAT -->
-
             <button
                 onclick="clearChat()"
                 class="w-8 h-8 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 flex items-center justify-center"
@@ -167,8 +194,6 @@ body {
 
             </button>
 
-
-            <!-- DARK MODE -->
 
             <button
                 onclick="toggleDarkMode()"
@@ -188,7 +213,7 @@ body {
 
 
 <!-- =========================
-     CHAT AREA
+     MAIN
 ========================= -->
 
 <main class="max-w-3xl mx-auto px-4 min-h-[calc(100vh-56px)] flex flex-col">
@@ -218,9 +243,20 @@ body {
 
         <p class="text-sm text-gray-500 dark:text-gray-400">
 
-            Ask Study-AI anything about your studies.
+            Ask Study-AI anything or upload your study PDF.
 
         </p>
+
+
+        <button
+            onclick="openPDFPicker()"
+            class="mt-6 px-4 py-2.5 rounded-xl bg-white dark:bg-[#16191e] border border-gray-200 dark:border-gray-800 text-sm hover:bg-gray-100 dark:hover:bg-gray-800">
+
+            <i class="fa-solid fa-file-pdf mr-2"></i>
+
+            Upload PDF
+
+        </button>
 
     </div>
 
@@ -248,6 +284,68 @@ body {
         <div class="bg-white dark:bg-[#16191e] border border-gray-200 dark:border-gray-800 rounded-2xl shadow-sm overflow-hidden">
 
 
+            <!-- PDF STATUS -->
+
+            <div
+                id="pdfStatus"
+                class="hidden px-4 pt-3">
+
+                <div class="pdf-badge bg-gray-100 dark:bg-gray-800">
+
+                    <i class="fa-solid fa-file-pdf"></i>
+
+                    <span id="pdfName">
+                        PDF
+                    </span>
+
+                    <button
+                        onclick="removePDF()"
+                        class="ml-1 text-gray-400 hover:text-gray-700 dark:hover:text-white">
+
+                        <i class="fa-solid fa-xmark"></i>
+
+                    </button>
+
+                </div>
+
+
+                <!-- OCR PROGRESS -->
+
+                <div
+                    id="ocrProgressContainer"
+                    class="hidden mt-2">
+
+                    <div class="flex justify-between text-[10px] text-gray-400 mb-1">
+
+                        <span id="ocrStatus">
+                            Reading PDF...
+                        </span>
+
+                        <span id="ocrPercent">
+                            0%
+                        </span>
+
+                    </div>
+
+
+                    <div class="h-1 bg-gray-200 dark:bg-gray-800 rounded-full overflow-hidden">
+
+                        <div
+                            id="ocrProgress"
+                            class="progress-bar h-full bg-black dark:bg-white"
+                            style="width:0%">
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+
+            <!-- TEXT INPUT -->
+
             <textarea
                 id="userPrompt"
                 rows="2"
@@ -257,10 +355,23 @@ body {
             </textarea>
 
 
+
             <div class="flex items-center justify-between px-3 pb-3 pt-1">
 
 
                 <div class="flex items-center gap-2">
+
+
+                    <!-- PDF -->
+
+                    <button
+                        onclick="openPDFPicker()"
+                        class="w-8 h-8 rounded-lg bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 flex items-center justify-center"
+                        title="Upload PDF">
+
+                        <i class="fa-solid fa-paperclip text-xs"></i>
+
+                    </button>
 
 
                     <!-- MATH -->
@@ -268,7 +379,7 @@ body {
                     <button
                         onclick="insertMath()"
                         class="w-8 h-8 rounded-lg bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 flex items-center justify-center"
-                        title="Math equation">
+                        title="Math">
 
                         <i class="fa-solid fa-calculator text-xs"></i>
 
@@ -286,17 +397,18 @@ body {
                     </button>
 
 
-                    <!-- SOLVE -->
+                    <!-- QUESTIONS -->
 
                     <button
-                        onclick="quickQuestion('Solve this step-by-step and explain the answer.')"
+                        onclick="quickQuestion('Create 5 important exam questions from this PDF.')"
                         class="hidden sm:block px-3 py-1.5 rounded-lg bg-gray-100 dark:bg-gray-800 text-xs hover:bg-gray-200 dark:hover:bg-gray-700">
 
-                        Solve
+                        Questions
 
                     </button>
 
                 </div>
+
 
 
                 <!-- SEND -->
@@ -327,13 +439,46 @@ body {
 
 
 
+<!-- PDF INPUT -->
+
+<input
+    type="file"
+    id="pdfInput"
+    accept="application/pdf"
+    class="hidden"
+    onchange="handlePDFUpload(event)"
+>
+
+
+
+<script type="module">
+
+import * as pdfjsLib from
+"https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.4.168/pdf.min.mjs";
+
+pdfjsLib.GlobalWorkerOptions.workerSrc =
+"https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.4.168/pdf.worker.min.mjs";
+
+window.pdfjsLib = pdfjsLib;
+
+</script>
+
+
+
 <script>
 
 /* =========================
-   CHAT MEMORY
+   DATA
 ========================= */
 
 let chatHistory = [];
+
+let pdfText = "";
+
+let pdfFileName = "";
+
+let pdfReady = false;
+
 
 
 /* =========================
@@ -352,14 +497,17 @@ function toggleDarkMode() {
     );
 
     updateThemeIcon();
+
 }
 
 
 function updateThemeIcon() {
 
-    const icon = document.getElementById("themeIcon");
+    const icon =
+        document.getElementById("themeIcon");
 
     if (!icon) return;
+
 
     if (
         document.documentElement.classList.contains("dark")
@@ -372,11 +520,11 @@ function updateThemeIcon() {
 
         icon.className =
             "fa-regular fa-moon text-sm";
+
     }
+
 }
 
-
-/* LOAD THEME */
 
 if (
     localStorage.getItem("theme") === "dark"
@@ -397,8 +545,13 @@ updateThemeIcon();
 function scrollToBottom() {
 
     window.scrollTo({
-        top: document.body.scrollHeight,
-        behavior: "smooth"
+
+        top:
+            document.body.scrollHeight,
+
+        behavior:
+            "smooth"
+
     });
 
 }
@@ -406,7 +559,7 @@ function scrollToBottom() {
 
 
 /* =========================
-   ENTER KEY
+   ENTER
 ========================= */
 
 function handleKeyDown(event) {
@@ -444,7 +597,7 @@ function quickQuestion(text) {
 
 
 /* =========================
-   MATH BUTTON
+   MATH
 ========================= */
 
 function insertMath() {
@@ -462,6 +615,482 @@ function insertMath() {
 
 
 /* =========================
+   PDF PICKER
+========================= */
+
+function openPDFPicker() {
+
+    document
+        .getElementById("pdfInput")
+        .click();
+
+}
+
+
+
+/* =========================
+   PDF UPLOAD
+========================= */
+
+async function handlePDFUpload(event) {
+
+    const file =
+        event.target.files[0];
+
+    if (!file) return;
+
+
+    if (
+        file.type !== "application/pdf"
+    ) {
+
+        alert(
+            "Please select a PDF file."
+        );
+
+        return;
+
+    }
+
+
+    if (
+        file.size > 20 * 1024 * 1024
+    ) {
+
+        alert(
+            "Please upload a PDF smaller than 20 MB."
+        );
+
+        return;
+
+    }
+
+
+    try {
+
+        pdfReady = false;
+
+        pdfText = "";
+
+        pdfFileName = file.name;
+
+
+        showPDFLoading(file.name);
+
+
+        const arrayBuffer =
+            await file.arrayBuffer();
+
+
+        const pdf =
+            await window.pdfjsLib
+                .getDocument({
+                    data: arrayBuffer
+                })
+                .promise;
+
+
+        let extractedText = "";
+
+
+        /*
+         * First attempt:
+         * normal selectable PDF text.
+         */
+
+        for (
+            let pageNumber = 1;
+            pageNumber <= pdf.numPages;
+            pageNumber++
+        ) {
+
+            updateOCRProgress(
+                `Reading page ${pageNumber} of ${pdf.numPages}...`,
+                Math.round(
+                    (pageNumber / pdf.numPages) * 50
+                )
+            );
+
+
+            const page =
+                await pdf.getPage(pageNumber);
+
+
+            const content =
+                await page.getTextContent();
+
+
+            const pageText =
+                content.items
+                    .map(item => item.str)
+                    .join(" ");
+
+
+            extractedText +=
+
+                `\n\n--- Page ${pageNumber} ---\n\n` +
+
+                pageText;
+
+        }
+
+
+        extractedText =
+            extractedText.trim();
+
+
+        /*
+         * If enough text exists,
+         * use it directly.
+         */
+
+        if (
+            extractedText.length >= 100
+        ) {
+
+            pdfText =
+                extractedText;
+
+            pdfReady = true;
+
+
+            showPDFLoaded(
+                file.name,
+                "Text extracted"
+            );
+
+
+        } else {
+
+            /*
+             * =========================
+             * OCR FALLBACK
+             * =========================
+             */
+
+            updateOCRProgress(
+                "Scanned PDF detected. Starting OCR...",
+                50
+            );
+
+
+            let ocrText = "";
+
+
+            for (
+                let pageNumber = 1;
+                pageNumber <= pdf.numPages;
+                pageNumber++
+            ) {
+
+                updateOCRProgress(
+                    `OCR page ${pageNumber} of ${pdf.numPages}...`,
+                    50 +
+                    Math.round(
+                        (pageNumber / pdf.numPages) * 50
+                    )
+                );
+
+
+                const page =
+                    await pdf.getPage(pageNumber);
+
+
+                const viewport =
+                    page.getViewport({
+                        scale: 1.5
+                    });
+
+
+                const canvas =
+                    document.createElement("canvas");
+
+
+                const context =
+                    canvas.getContext("2d");
+
+
+                canvas.width =
+                    viewport.width;
+
+
+                canvas.height =
+                    viewport.height;
+
+
+                await page.render({
+
+                    canvasContext:
+                        context,
+
+                    viewport:
+                        viewport
+
+                }).promise;
+
+
+                const image =
+                    canvas.toDataURL(
+                        "image/png"
+                    );
+
+
+                const result =
+                    await Tesseract.recognize(
+                        image,
+                        "eng",
+                        {
+                            logger: info => {
+
+                                if (
+                                    info.status ===
+                                    "recognizing text"
+                                ) {
+
+                                    const local =
+                                        Math.round(
+                                            info.progress * 100
+                                        );
+
+                                    updateOCRProgress(
+                                        `OCR page ${pageNumber}...`,
+                                        Math.min(
+                                            99,
+                                            50 +
+                                            Math.round(
+                                                (
+                                                    (
+                                                        pageNumber - 1
+                                                    ) /
+                                                    pdf.numPages
+                                                ) * 50
+                                            ) +
+                                            Math.round(
+                                                local /
+                                                pdf.numPages /
+                                                2
+                                            )
+                                        )
+                                    );
+
+                                }
+
+                            }
+                        }
+                    );
+
+
+                ocrText +=
+
+                    `\n\n--- Page ${pageNumber} ---\n\n` +
+
+                    result.data.text;
+
+            }
+
+
+            pdfText =
+                ocrText.trim();
+
+
+            if (!pdfText) {
+
+                throw new Error(
+                    "Could not extract text from this PDF."
+                );
+
+            }
+
+
+            pdfReady = true;
+
+
+            showPDFLoaded(
+                file.name,
+                "OCR completed"
+            );
+
+        }
+
+
+        /*
+         * Show chat.
+         */
+
+        document
+            .getElementById("welcome")
+            .classList.add("hidden");
+
+
+        document
+            .getElementById("messages")
+            .classList.remove("hidden");
+
+
+        addSystemMessage(
+
+            `📄 **${file.name}** is ready.\n\n` +
+
+            `I extracted the text from your PDF. ` +
+
+            `You can now ask questions about it.`
+
+        );
+
+
+    } catch (error) {
+
+        console.error(
+            "PDF processing error:",
+            error
+        );
+
+
+        alert(
+            error.message ||
+            "Could not process this PDF."
+        );
+
+
+        removePDF();
+
+    }
+
+}
+
+
+
+/* =========================
+   PDF LOADING
+========================= */
+
+function showPDFLoading(name) {
+
+    document
+        .getElementById("pdfStatus")
+        .classList.remove("hidden");
+
+
+    document
+        .getElementById("ocrProgressContainer")
+        .classList.remove("hidden");
+
+
+    document
+        .getElementById("pdfName")
+        .textContent =
+        name;
+
+
+    updateOCRProgress(
+        "Reading PDF...",
+        0
+    );
+
+}
+
+
+
+/* =========================
+   PROGRESS
+========================= */
+
+function updateOCRProgress(
+    status,
+    percent
+) {
+
+    document
+        .getElementById("ocrStatus")
+        .textContent =
+        status;
+
+
+    document
+        .getElementById("ocrPercent")
+        .textContent =
+        `${percent}%`;
+
+
+    document
+        .getElementById("ocrProgress")
+        .style.width =
+        `${percent}%`;
+
+}
+
+
+
+/* =========================
+   PDF READY
+========================= */
+
+function showPDFLoaded(
+    name,
+    method
+) {
+
+    document
+        .getElementById("pdfStatus")
+        .classList.remove("hidden");
+
+
+    document
+        .getElementById("pdfName")
+        .textContent =
+        `${name} • ${method}`;
+
+
+    updateOCRProgress(
+        "PDF ready",
+        100
+    );
+
+
+    setTimeout(() => {
+
+        document
+            .getElementById("ocrProgressContainer")
+            .classList.add("hidden");
+
+    }, 1000);
+
+}
+
+
+
+/* =========================
+   REMOVE PDF
+========================= */
+
+function removePDF() {
+
+    pdfText = "";
+
+    pdfFileName = "";
+
+    pdfReady = false;
+
+
+    document
+        .getElementById("pdfStatus")
+        .classList.add("hidden");
+
+
+    document
+        .getElementById("ocrProgressContainer")
+        .classList.add("hidden");
+
+
+    document
+        .getElementById("pdfInput")
+        .value = "";
+
+}
+
+
+
+/* =========================
    ESCAPE HTML
 ========================= */
 
@@ -470,9 +1099,70 @@ function escapeHTML(text) {
     const div =
         document.createElement("div");
 
-    div.textContent = text;
+    div.textContent =
+        text;
 
     return div.innerHTML;
+
+}
+
+
+
+/* =========================
+   SYSTEM MESSAGE
+========================= */
+
+function addSystemMessage(text) {
+
+    const messages =
+        document.getElementById("messages");
+
+
+    const message =
+        document.createElement("div");
+
+
+    message.className =
+        "chat-message flex justify-start";
+
+
+    let html;
+
+
+    try {
+
+        html =
+            marked.parse(text);
+
+    } catch {
+
+        html =
+            escapeHTML(text)
+                .replace(/\n/g, "<br>");
+
+    }
+
+
+    message.innerHTML = `
+
+        <div class="max-w-[92%]">
+
+            <div class="bg-gray-100 dark:bg-[#16191e] border border-gray-200 dark:border-gray-800 px-4 py-3 rounded-2xl text-sm">
+
+                <div class="ai-content">
+
+                    ${html}
+
+                </div>
+
+            </div>
+
+        </div>
+
+    `;
+
+
+    messages.appendChild(message);
 
 }
 
@@ -487,11 +1177,14 @@ function addUserMessage(text) {
     const messages =
         document.getElementById("messages");
 
+
     const message =
         document.createElement("div");
 
+
     message.className =
         "chat-message flex justify-end";
+
 
     message.innerHTML = `
 
@@ -507,6 +1200,7 @@ function addUserMessage(text) {
 
     `;
 
+
     messages.appendChild(message);
 
     scrollToBottom();
@@ -516,7 +1210,7 @@ function addUserMessage(text) {
 
 
 /* =========================
-   AI LOADING
+   LOADING
 ========================= */
 
 function addLoadingMessage() {
@@ -524,14 +1218,18 @@ function addLoadingMessage() {
     const messages =
         document.getElementById("messages");
 
+
     const message =
         document.createElement("div");
+
 
     message.id =
         "loadingMessage";
 
+
     message.className =
         "chat-message flex justify-start";
+
 
     message.innerHTML = `
 
@@ -568,6 +1266,7 @@ function addLoadingMessage() {
 
     `;
 
+
     messages.appendChild(message);
 
     scrollToBottom();
@@ -583,29 +1282,21 @@ function addLoadingMessage() {
 function replaceLoadingMessage(text) {
 
     const loading =
-        document.getElementById("loadingMessage");
+        document.getElementById(
+            "loadingMessage"
+        );
+
 
     if (!loading) return;
 
 
     let html;
 
+
     try {
 
-        if (
-            typeof marked !== "undefined"
-        ) {
-
-            html =
-                marked.parse(text);
-
-        } else {
-
-            html =
-                escapeHTML(text)
-                    .replace(/\n/g, "<br>");
-
-        }
+        html =
+            marked.parse(text);
 
     } catch {
 
@@ -674,42 +1365,57 @@ function replaceLoadingMessage(text) {
 async function sendMessage() {
 
     const input =
-        document.getElementById("userPrompt");
+        document.getElementById(
+            "userPrompt"
+        );
+
 
     const text =
         input.value.trim();
+
 
     if (!text) return;
 
 
     const button =
-        document.getElementById("sendButton");
+        document.getElementById(
+            "sendButton"
+        );
 
 
-    /* SHOW CHAT */
+    /*
+     * Show chat
+     */
 
     document
         .getElementById("welcome")
         .classList.add("hidden");
+
 
     document
         .getElementById("messages")
         .classList.remove("hidden");
 
 
-    /* SHOW USER MESSAGE */
+    /*
+     * User message
+     */
 
     addUserMessage(text);
+
 
     input.value = "";
 
 
-    /* SHOW LOADING */
+    /*
+     * Loading
+     */
 
     addLoadingMessage();
 
 
     button.disabled = true;
+
 
     button.innerHTML =
         '<i class="fa-solid fa-spinner fa-spin text-xs"></i>';
@@ -718,40 +1424,60 @@ async function sendMessage() {
     try {
 
         /*
-         * IMPORTANT:
+         * Send:
          *
-         * Send BOTH:
-         * 1. Current message
-         * 2. Previous chat history
+         * message
+         * history
+         * PDF text
+         * PDF filename
          */
 
         const response =
-            await fetch("/api/chat", {
+            await fetch(
+                "/api/chat",
+                {
 
-                method: "POST",
+                    method:
+                        "POST",
 
-                headers: {
-                    "Content-Type":
-                        "application/json"
-                },
+                    headers: {
 
-                body: JSON.stringify({
+                        "Content-Type":
+                            "application/json"
 
-                    message: text,
+                    },
 
-                    history: chatHistory
+                    body:
+                        JSON.stringify({
 
-                })
+                            message:
+                                text,
 
-            });
+                            history:
+                                chatHistory,
 
+                            pdfText:
+                                pdfReady
+                                    ? pdfText
+                                    : "",
 
-        /* READ RESPONSE */
+                            pdfFileName:
+                                pdfReady
+                                    ? pdfFileName
+                                    : ""
+
+                        })
+
+                }
+            );
+
 
         const rawText =
             await response.text();
 
+
         let data;
+
 
         try {
 
@@ -767,19 +1493,17 @@ async function sendMessage() {
         }
 
 
-        /* CHECK HTTP ERROR */
-
         if (!response.ok) {
 
             throw new Error(
+
                 data.error ||
                 `Server error: ${response.status}`
+
             );
 
         }
 
-
-        /* CHECK ANSWER */
 
         if (
             !data.answer ||
@@ -794,40 +1518,46 @@ async function sendMessage() {
 
 
         /*
-         * SAVE USER MESSAGE
+         * Save user message
          */
 
         chatHistory.push({
 
-            role: "user",
+            role:
+                "user",
 
             parts: [
+
                 {
-                    text: text
+                    text:
+                        text
                 }
+
             ]
 
         });
 
 
         /*
-         * SAVE AI MESSAGE
+         * Save AI answer
          */
 
         chatHistory.push({
 
-            role: "model",
+            role:
+                "model",
 
             parts: [
+
                 {
-                    text: data.answer
+                    text:
+                        data.answer
                 }
+
             ]
 
         });
 
-
-        /* SHOW AI ANSWER */
 
         replaceLoadingMessage(
             data.answer
@@ -845,7 +1575,10 @@ async function sendMessage() {
         replaceLoadingMessage(
 
             "⚠️ **Study-AI Error**\n\n" +
-            escapeMarkdown(error.message)
+
+            escapeMarkdown(
+                error.message
+            )
 
         );
 
@@ -853,8 +1586,10 @@ async function sendMessage() {
 
         button.disabled = false;
 
+
         button.innerHTML =
             '<i class="fa-solid fa-arrow-up text-xs"></i>';
+
 
         input.focus();
 
@@ -865,30 +1600,39 @@ async function sendMessage() {
 
 
 /* =========================
-   COPY AI RESPONSE
+   COPY
 ========================= */
 
 function copyAI(button) {
 
     const card =
-        button.closest(".bg-white");
+        button.closest(
+            ".bg-white"
+        );
+
 
     if (!card) return;
 
 
     const content =
-        card.querySelector(".ai-content");
+        card.querySelector(
+            ".ai-content"
+        );
+
 
     if (!content) return;
 
 
     navigator.clipboard
-        .writeText(content.innerText)
+        .writeText(
+            content.innerText
+        )
 
         .then(() => {
 
             button.innerHTML =
                 '<i class="fa-solid fa-check text-xs"></i>';
+
 
             setTimeout(() => {
 
@@ -917,43 +1661,30 @@ function copyAI(button) {
 
 function clearChat() {
 
-    /*
-     * Clear AI memory
-     */
-
     chatHistory = [];
 
 
-    /*
-     * Clear messages
-     */
-
-    document.getElementById(
-        "messages"
-    ).innerHTML = "";
+    removePDF();
 
 
-    document.getElementById(
-        "messages"
-    ).classList.add("hidden");
+    document
+        .getElementById("messages")
+        .innerHTML = "";
 
 
-    /*
-     * Show welcome
-     */
-
-    document.getElementById(
-        "welcome"
-    ).classList.remove("hidden");
+    document
+        .getElementById("messages")
+        .classList.add("hidden");
 
 
-    /*
-     * Clear input
-     */
+    document
+        .getElementById("welcome")
+        .classList.remove("hidden");
 
-    document.getElementById(
-        "userPrompt"
-    ).value = "";
+
+    document
+        .getElementById("userPrompt")
+        .value = "";
 
 }
 
