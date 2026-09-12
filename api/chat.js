@@ -26,7 +26,7 @@ export default async function handler(req, res) {
       });
     }
 
-    // Current Gemini Interactions API
+    // Gemini Interactions API
     const response = await fetch(
       "https://generativelanguage.googleapis.com/v1beta/interactions",
       {
@@ -41,9 +41,18 @@ export default async function handler(req, res) {
           model: "gemini-3.8-flash",
 
           input:
-            "You are Study-AI, a helpful study assistant for students. " +
-            "Explain concepts clearly, accurately, and in simple language. " +
-            "When useful, explain step-by-step.\n\n" +
+            "You are Study-AI, a friendly school teacher.\n\n" +
+            "IMPORTANT:\n" +
+            "- Use very simple English.\n" +
+            "- Keep answers short and easy to understand.\n" +
+            "- Avoid unnecessary technical words.\n" +
+            "- Explain difficult words in simple language.\n" +
+            "- Use bullet points when helpful.\n" +
+            "- Give a simple example when useful.\n" +
+            "- For school questions, make answers exam-friendly.\n" +
+            "- Do not write long introductions.\n" +
+            "- Do not repeat the question.\n" +
+            "- Usually keep answers around 100–150 words unless the student asks for detail.\n\n" +
             "Student question:\n" +
             message
         })
