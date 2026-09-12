@@ -25,10 +25,14 @@ export default async function handler(req, res) {
 
     if (!apiKey) {
       return res.status(500).json({
-        error: "GEMINI_API_KEY is missing in Vercel Environment Variables."
+        error:
+          "GEMINI_API_KEY is missing in Vercel Environment Variables."
       });
     }
 
+    // -----------------------------
+    // SAFE CHAT HISTORY
+    // -----------------------------
     const safeHistory = Array.isArray(history)
       ? history
           .slice(-12)
@@ -50,6 +54,9 @@ export default async function handler(req, res) {
       })
       .join("\n");
 
+    // -----------------------------
+    // PDF CONTEXT
+    // -----------------------------
     let pdfContext = "";
 
     if (typeof pdfText === "string" && pdfText.trim()) {
@@ -60,7 +67,7 @@ export default async function handler(req, res) {
       if (cleanPDF.length > MAX_PDF_CHARS) {
         cleanPDF =
           cleanPDF.slice(0, MAX_PDF_CHARS) +
-          "\n\n[Later PDF pages were not included because of the context limit.]";
+          "\n\n[The PDF is longer than the current context limit. Some later pages were not included.]";
       }
 
       pdfContext =
@@ -70,116 +77,151 @@ export default async function handler(req, res) {
         "\n===== END PDF =====\n";
     }
 
-    const inputText =
-      "You are Study-AI, a friendly school teacher.\n\n" +
-      "Help the student learn clearly and simply.\n\n" +
-      "RULES:\n" +
-      "- Use simple English unless another language is requested.\n" +
-      "- Answer in Gujarati when the student asks in Gujarati.\n" +
-      "- For school questions, give exam-friendly answers.\n" +
-      "- Use step-by-step explanations for problems.\n" +
-      "- If an image is provided, carefully analyze it.\n" +
-      "- If the image contains a question, solve it.\n" +
-      "- If handwriting is unclear, say so instead of guessing.\n" +
-      "- Never claim to see something that is not visible.\n" +
-      "- If a PDF is provided, use it as the main source for PDF questions.\n" +
-      "- Do not invent information from the PDF.\n\n" +
+    // -----------------------------
+    // BUILD GEMINI INPUT
+    // -----------------------------
+    const inputParts = [];
 
-      (
-        previousConversation
-          ? "===== PREVIOUS CONVERSATION =====\n" +
-            previousConversation +
-            "\n===== END PREVIOUS CONVERSATION =====\n\n"
-          : ""
-      ) +
+    // Main Study-AI instructions
+    inputParts.push({
+      type: "text",
+      text:
+        `You are Study-AI, a smart, friendly AI study assistant.
 
-      pdfContext +
+Your job is to help students understand and solve questions clearly.
 
-      "\n===== CURRENT QUESTION =====\n" +
-      message;
+RESPONSE STYLE:
+- Be concise, natural, and useful.
+- Match the answer length to the difficulty of the question.
+- Do NOT give a long textbook-style answer to a very simple question.
+- For very simple calculations such as "2+3", "10-4", or "5×6", give the answer directly.
+- For simple questions, avoid unnecessary headings.
+- Do not add unnecessary examples, stories, fun facts, emojis, or motivational messages.
+- Do not repeat the student's question unless necessary.
+- Do not say "Hello!" or "Great job!" unless it naturally fits the conversation.
+- Do not add a "Final Answer" section for extremely simple questions.
+- Only give detailed step-by-step explanations when the problem is difficult or the student asks for step-by-step.
+- If the student explicitly says "step by step", explain the solution clearly in steps.
+- For school questions, make answers clear and exam-friendly.
+- Use simple English unless the student asks for another language.
+- If the student asks in Gujarati, answer in Gujarati.
+- If the student asks in another language, respond in that language when possible.
+- Use bullet points when they genuinely improve readability.
+- Use mathematical notation only when it makes the answer clearer.
+- Never unnecessarily turn a short answer into a long explanation.
 
-    /*
-      Interactions API input.
-      Text is always included.
-    */
-    const interactionInput = [
-      {
+MATHEMATICS:
+- Calculate carefully.
+- Give the correct answer.
+- For easy arithmetic, keep the response extremely short.
+- For harder calculations, show useful steps.
+- If the student asks only for the answer, give only the answer.
+
+CONVERSATION:
+- Use previous conversation to understand references such as "it", "this", "that", and "they".
+- Do not repeat information unnecessarily.
+- Remember the conversation context provided below.
+
+PDF:
+- If a PDF is provided, use the PDF as the main source for questions about that PDF.
+- Do not invent information and claim it came from the PDF.
+- If the requested information is not present in the PDF, say so clearly.
+
+IMAGE:
+- If an image is provided, carefully examine it.
+- Answer questions about the image based on what is actually visible.
+- If the image contains a question, solve it.
+- If text in the image is unclear, say that it is unclear rather than guessing.
+
+IMPORTANT:
+- Accuracy is more important than length.
+- Do not over-explain simple questions.
+- Give the student exactly the amount of explanation that is useful.
+
+`
+    });
+
+    // -----------------------------
+    // PREVIOUS CONVERSATION
+    // -----------------------------
+    if (previousConversation) {
+      inputParts.push({
         type: "text",
-        text: inputText
-      }
-    ];
-
-    /*
-      Add image when supplied.
-
-      IMPORTANT:
-      Gemini expects data + mime_type directly.
-    */
-    if (
-      typeof imageBase64 === "string" &&
-      imageBase64.startsWith("data:image/")
-    ) {
-      const commaIndex = imageBase64.indexOf(",");
-
-      if (commaIndex === -1) {
-        return res.status(400).json({
-          error: "Invalid image data."
-        });
-      }
-
-      const base64Data =
-        imageBase64.slice(commaIndex + 1);
-
-      const detectedMime =
-        imageBase64.slice(
-          5,
-          imageBase64.indexOf(";")
-        );
-
-      const mimeType =
-        imageMimeType || detectedMime;
-
-      const allowedTypes = [
-        "image/jpeg",
-        "image/png",
-        "image/webp",
-        "image/gif"
-      ];
-
-      if (!allowedTypes.includes(mimeType)) {
-        return res.status(400).json({
-          error:
-            "Unsupported image type. Use JPG, PNG, WEBP, or GIF."
-        });
-      }
-
-      interactionInput.push({
-        type: "image",
-        data: base64Data,
-        mime_type: mimeType
+        text:
+          "\n===== PREVIOUS CONVERSATION =====\n" +
+          previousConversation +
+          "\n===== END PREVIOUS CONVERSATION =====\n"
       });
     }
 
+    // -----------------------------
+    // PDF
+    // -----------------------------
+    if (pdfContext) {
+      inputParts.push({
+        type: "text",
+        text: pdfContext
+      });
+    }
+
+    // -----------------------------
+    // IMAGE / VISION
+    // -----------------------------
+    if (
+      typeof imageBase64 === "string" &&
+      imageBase64.trim() &&
+      typeof imageMimeType === "string" &&
+      imageMimeType.trim()
+    ) {
+      let base64Data = imageBase64.trim();
+
+      // Remove data URL prefix if frontend sends:
+      // data:image/jpeg;base64,...
+      if (base64Data.includes(",")) {
+        base64Data = base64Data.split(",")[1];
+      }
+
+      inputParts.push({
+        type: "image",
+        data: base64Data,
+        mime_type: imageMimeType
+      });
+    }
+
+    // -----------------------------
+    // CURRENT QUESTION
+    // -----------------------------
+    inputParts.push({
+      type: "text",
+      text:
+        "\n===== CURRENT QUESTION =====\n" +
+        message
+    });
+
+    // -----------------------------
+    // GEMINI INTERACTIONS API
+    // -----------------------------
     const response = await fetch(
       "https://generativelanguage.googleapis.com/v1beta/interactions",
       {
         method: "POST",
-
         headers: {
           "Content-Type": "application/json",
           "x-goog-api-key": apiKey,
           "Api-Revision": "2026-05-20"
         },
-
         body: JSON.stringify({
           model: "gemini-3.8-flash",
-          input: interactionInput
+          input: inputParts
         })
       }
     );
 
     const data = await response.json();
 
+    // -----------------------------
+    // API ERROR
+    // -----------------------------
     if (!response.ok) {
       console.error("Gemini API error:", data);
 
@@ -191,12 +233,17 @@ export default async function handler(req, res) {
       });
     }
 
+    // -----------------------------
+    // EXTRACT ANSWER
+    // -----------------------------
     let answer = "";
 
+    // New/common output_text format
     if (typeof data?.output_text === "string") {
       answer = data.output_text;
     }
 
+    // Steps format
     if (!answer && Array.isArray(data?.steps)) {
       for (const step of data.steps) {
         if (!Array.isArray(step?.content)) continue;
@@ -212,6 +259,7 @@ export default async function handler(req, res) {
       }
     }
 
+    // Output format
     if (!answer && Array.isArray(data?.output)) {
       for (const item of data.output) {
         if (typeof item?.text === "string") {
@@ -230,6 +278,9 @@ export default async function handler(req, res) {
 
     answer = answer.trim();
 
+    // -----------------------------
+    // EMPTY RESPONSE
+    // -----------------------------
     if (!answer) {
       console.error(
         "Unexpected Gemini response:",
@@ -241,15 +292,15 @@ export default async function handler(req, res) {
       });
     }
 
+    // -----------------------------
+    // RETURN ANSWER
+    // -----------------------------
     return res.status(200).json({
       answer
     });
 
   } catch (error) {
-    console.error(
-      "Study-AI backend error:",
-      error
-    );
+    console.error("Study-AI backend error:", error);
 
     return res.status(500).json({
       error:
