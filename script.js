@@ -1,7 +1,7 @@
 /* =========================
    STUDY-AI
    JavaScript
-   Version 0.3
+   Version 0.4
 ========================= */
 
 
@@ -76,7 +76,7 @@ quickStart.addEventListener(
         updateStudyGoal();
 
         alert(
-            "🚀 Study session started! You added 25 minutes to today's goal."
+            "Study session started! You added 25 minutes to today's goal."
         );
 
     }
@@ -100,6 +100,10 @@ const answer =
     document.getElementById("answer");
 
 
+/* =========================
+   MARKDOWN RENDERER
+========================= */
+
 function escapeHTML(text) {
 
     const div =
@@ -111,6 +115,179 @@ function escapeHTML(text) {
 }
 
 
+function formatAIResponse(text) {
+
+    if (!text) {
+        return "";
+    }
+
+    let html = escapeHTML(text);
+
+    /*
+       Code blocks
+       ```code```
+    */
+
+    html = html.replace(
+        /```([\s\S]*?)```/g,
+        function (_, code) {
+
+            return `
+                <pre class="ai-code">
+                    <code>${code.trim()}</code>
+                </pre>
+            `;
+
+        }
+    );
+
+
+    /*
+       Headings
+       ### Heading
+       ## Heading
+       # Heading
+    */
+
+    html = html.replace(
+        /^### (.*)$/gm,
+        "<h4>$1</h4>"
+    );
+
+    html = html.replace(
+        /^## (.*)$/gm,
+        "<h3>$1</h3>"
+    );
+
+    html = html.replace(
+        /^# (.*)$/gm,
+        "<h3>$1</h3>"
+    );
+
+
+    /*
+       Bold
+       **text**
+    */
+
+    html = html.replace(
+        /\*\*(.*?)\*\*/g,
+        "<strong>$1</strong>"
+    );
+
+
+    /*
+       Italic
+       *text*
+    */
+
+    html = html.replace(
+        /(^|[^\*])\*([^*\n]+)\*(?!\*)/g,
+        "$1<em>$2</em>"
+    );
+
+
+    /*
+       Numbered lists
+       1. Item
+       2. Item
+    */
+
+    html = html.replace(
+        /(?:^|\n)((?:\d+\.\s.+\n?)+)/g,
+        function (_, list) {
+
+            const items =
+                list
+                    .trim()
+                    .split("\n")
+                    .map(item =>
+                        item.replace(
+                            /^\d+\.\s+/,
+                            ""
+                        )
+                    )
+                    .map(item =>
+                        `<li>${item}</li>`
+                    )
+                    .join("");
+
+            return `
+                <ol class="ai-list">
+                    ${items}
+                </ol>
+            `;
+
+        }
+    );
+
+
+    /*
+       Bullet lists
+       - Item
+       * Item
+    */
+
+    html = html.replace(
+        /(?:^|\n)((?:[-•]\s.+\n?)+)/g,
+        function (_, list) {
+
+            const items =
+                list
+                    .trim()
+                    .split("\n")
+                    .map(item =>
+                        item.replace(
+                            /^[-•]\s+/,
+                            ""
+                        )
+                    )
+                    .map(item =>
+                        `<li>${item}</li>`
+                    )
+                    .join("");
+
+            return `
+                <ul class="ai-list">
+                    ${items}
+                </ul>
+            `;
+
+        }
+    );
+
+
+    /*
+       Line breaks
+    */
+
+    html = html.replace(
+        /\n{2,}/g,
+        "</p><p>"
+    );
+
+    html = html.replace(
+        /\n/g,
+        "<br>"
+    );
+
+
+    /*
+       Wrap normal text in paragraphs
+    */
+
+    html =
+        `<div class="ai-response">${html}</div>`;
+
+
+    return html;
+}
+
+
+/* =========================
+   ASK AI
+========================= */
+
 async function askStudyAI() {
 
     const userQuestion =
@@ -120,14 +297,18 @@ async function askStudyAI() {
     if (!userQuestion) {
 
         answer.innerHTML = `
-            <div class="answer-icon">⚠️</div>
+            <div class="answer-avatar">
+                ⚠️
+            </div>
 
-            <div>
+            <div class="answer-content">
+
                 <strong>Study-AI</strong>
 
                 <p>
                     Please type a study question first.
                 </p>
+
             </div>
         `;
 
@@ -135,15 +316,21 @@ async function askStudyAI() {
     }
 
 
-    answer.innerHTML = `
-        <div class="answer-icon">🤔</div>
+    /* Loading state */
 
-        <div>
+    answer.innerHTML = `
+        <div class="answer-avatar">
+            ✦
+        </div>
+
+        <div class="answer-content">
+
             <strong>Study-AI</strong>
 
             <p>
-                Thinking about your question...
+                Thinking...
             </p>
+
         </div>
     `;
 
@@ -154,26 +341,30 @@ async function askStudyAI() {
     try {
 
         const response =
-            await fetch("/api/chat", {
+            await fetch(
+                "/api/chat",
+                {
+                    method: "POST",
 
-                method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
 
-                headers: {
-                    "Content-Type": "application/json"
-                },
-
-                body: JSON.stringify({
-                    message: userQuestion
-                })
-
-            });
+                    body: JSON.stringify({
+                        message: userQuestion
+                    })
+                }
+            );
 
 
-        // Try to read JSON safely
         let data = {};
 
+
         try {
-            data = await response.json();
+
+            data =
+                await response.json();
+
         } catch (jsonError) {
 
             throw new Error(
@@ -183,7 +374,6 @@ async function askStudyAI() {
         }
 
 
-        // Show actual backend error
         if (!response.ok) {
 
             throw new Error(
@@ -194,20 +384,24 @@ async function askStudyAI() {
         }
 
 
-        const safeAnswer =
-            escapeHTML(
-                data?.answer ||
-                "No answer received from Gemini."
-            );
+        const aiAnswer =
+            data?.answer ||
+            "No answer received from Gemini.";
 
+
+        /* Professional AI response */
 
         answer.innerHTML = `
-            <div class="answer-icon">🤖</div>
+            <div class="answer-avatar">
+                ✦
+            </div>
 
-            <div>
+            <div class="answer-content">
+
                 <strong>Study-AI</strong>
 
-                <p>${safeAnswer}</p>
+                ${formatAIResponse(aiAnswer)}
+
             </div>
         `;
 
@@ -228,14 +422,18 @@ async function askStudyAI() {
 
 
         answer.innerHTML = `
-            <div class="answer-icon">⚠️</div>
+            <div class="answer-avatar">
+                ⚠️
+            </div>
 
-            <div>
-                <strong>Study-AI Error</strong>
+            <div class="answer-content">
+
+                <strong>Study-AI</strong>
 
                 <p>
                     ${errorMessage}
                 </p>
+
             </div>
         `;
 
@@ -248,15 +446,23 @@ async function askStudyAI() {
 }
 
 
+/* =========================
+   ASK BUTTON
+========================= */
+
 askButton.addEventListener(
     "click",
     askStudyAI
 );
 
 
+/* =========================
+   ENTER KEY
+========================= */
+
 question.addEventListener(
     "keydown",
-    function(event) {
+    function (event) {
 
         if (
             event.key === "Enter" &&
@@ -284,45 +490,4 @@ const savedTheme =
     localStorage.getItem("theme");
 
 
-if (savedTheme === "dark") {
-
-    document.body.classList.add("dark");
-
-    themeButton.textContent = "☀️";
-
-}
-
-
-themeButton.addEventListener(
-    "click",
-    function () {
-
-        document.body.classList.toggle("dark");
-
-
-        const darkMode =
-            document.body.classList.contains("dark");
-
-
-        if (darkMode) {
-
-            themeButton.textContent = "☀️";
-
-            localStorage.setItem(
-                "theme",
-                "dark"
-            );
-
-        } else {
-
-            themeButton.textContent = "🌙";
-
-            localStorage.setItem(
-                "theme",
-                "light"
-            );
-
-        }
-
-    }
-);
+if (
