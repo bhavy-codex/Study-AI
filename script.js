@@ -1,7 +1,7 @@
 /* =========================
    STUDY-AI
    JavaScript
-   Version 0.2
+   Version 0.3
 ========================= */
 
 
@@ -148,6 +148,9 @@ async function askStudyAI() {
     `;
 
 
+    askButton.disabled = true;
+
+
     try {
 
         const response =
@@ -166,14 +169,26 @@ async function askStudyAI() {
             });
 
 
-        const data =
-            await response.json();
+        // Try to read JSON safely
+        let data = {};
+
+        try {
+            data = await response.json();
+        } catch (jsonError) {
+
+            throw new Error(
+                `Server returned ${response.status} but not valid JSON.`
+            );
+
+        }
 
 
+        // Show actual backend error
         if (!response.ok) {
 
             throw new Error(
-                data.error || "AI request failed"
+                data?.error ||
+                `AI request failed with status ${response.status}`
             );
 
         }
@@ -181,8 +196,8 @@ async function askStudyAI() {
 
         const safeAnswer =
             escapeHTML(
-                data.answer ||
-                "No answer received."
+                data?.answer ||
+                "No answer received from Gemini."
             );
 
 
@@ -205,18 +220,28 @@ async function askStudyAI() {
         );
 
 
+        const errorMessage =
+            escapeHTML(
+                error?.message ||
+                "Unknown error"
+            );
+
+
         answer.innerHTML = `
             <div class="answer-icon">⚠️</div>
 
             <div>
-                <strong>Study-AI</strong>
+                <strong>Study-AI Error</strong>
 
                 <p>
-                    Sorry, I couldn't connect to the AI right now.
-                    Please try again.
+                    ${errorMessage}
                 </p>
             </div>
         `;
+
+    } finally {
+
+        askButton.disabled = false;
 
     }
 
