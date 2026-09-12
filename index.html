@@ -30,7 +30,6 @@ tailwind.config = {
 <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 
 <style>
-
 * {
     box-sizing: border-box;
 }
@@ -54,7 +53,6 @@ body {
 }
 
 @keyframes messageIn {
-
     from {
         opacity: 0;
         transform: translateY(6px);
@@ -64,7 +62,6 @@ body {
         opacity: 1;
         transform: translateY(0);
     }
-
 }
 
 .ai-content p {
@@ -121,7 +118,6 @@ body {
 }
 
 @keyframes thinking {
-
     0%, 60%, 100% {
         opacity: .3;
     }
@@ -129,9 +125,7 @@ body {
     30% {
         opacity: 1;
     }
-
 }
-
 </style>
 </head>
 
@@ -162,6 +156,8 @@ body {
 
         <div class="flex items-center gap-2">
 
+            <!-- NEW CHAT -->
+
             <button
                 onclick="clearChat()"
                 class="w-8 h-8 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 flex items-center justify-center"
@@ -171,6 +167,8 @@ body {
 
             </button>
 
+
+            <!-- DARK MODE -->
 
             <button
                 onclick="toggleDarkMode()"
@@ -196,7 +194,9 @@ body {
 <main class="max-w-3xl mx-auto px-4 min-h-[calc(100vh-56px)] flex flex-col">
 
 
-    <!-- WELCOME -->
+    <!-- =========================
+         WELCOME
+    ========================= -->
 
     <div
         id="welcome"
@@ -204,7 +204,7 @@ body {
 
         <div class="w-12 h-12 rounded-2xl bg-black dark:bg-white text-white dark:text-black flex items-center justify-center mb-5 shadow-sm">
 
-            <i class="fa-solid fa-sparkles"></i>
+            <i class="fa-solid fa-star"></i>
 
         </div>
 
@@ -296,9 +296,7 @@ body {
 
                     </button>
 
-
                 </div>
-
 
 
                 <!-- SEND -->
@@ -311,7 +309,6 @@ body {
                     <i class="fa-solid fa-arrow-up text-xs"></i>
 
                 </button>
-
 
             </div>
 
@@ -332,13 +329,11 @@ body {
 
 <script>
 
-
 /* =========================
-   CHAT DATA
+   CHAT MEMORY
 ========================= */
 
 let chatHistory = [];
-
 
 
 /* =========================
@@ -357,17 +352,14 @@ function toggleDarkMode() {
     );
 
     updateThemeIcon();
-
 }
 
 
 function updateThemeIcon() {
 
-    const icon =
-        document.getElementById("themeIcon");
+    const icon = document.getElementById("themeIcon");
 
     if (!icon) return;
-
 
     if (
         document.documentElement.classList.contains("dark")
@@ -380,13 +372,11 @@ function updateThemeIcon() {
 
         icon.className =
             "fa-regular fa-moon text-sm";
-
     }
-
 }
 
 
-/* Load saved theme */
+/* LOAD THEME */
 
 if (
     localStorage.getItem("theme") === "dark"
@@ -395,7 +385,6 @@ if (
     document.documentElement.classList.add("dark");
 
 }
-
 
 updateThemeIcon();
 
@@ -473,6 +462,23 @@ function insertMath() {
 
 
 /* =========================
+   ESCAPE HTML
+========================= */
+
+function escapeHTML(text) {
+
+    const div =
+        document.createElement("div");
+
+    div.textContent = text;
+
+    return div.innerHTML;
+
+}
+
+
+
+/* =========================
    USER MESSAGE
 ========================= */
 
@@ -481,14 +487,11 @@ function addUserMessage(text) {
     const messages =
         document.getElementById("messages");
 
-
     const message =
         document.createElement("div");
 
-
     message.className =
         "chat-message flex justify-end";
-
 
     message.innerHTML = `
 
@@ -503,7 +506,6 @@ function addUserMessage(text) {
         </div>
 
     `;
-
 
     messages.appendChild(message);
 
@@ -522,18 +524,14 @@ function addLoadingMessage() {
     const messages =
         document.getElementById("messages");
 
-
     const message =
         document.createElement("div");
-
 
     message.id =
         "loadingMessage";
 
-
     message.className =
         "chat-message flex justify-start";
-
 
     message.innerHTML = `
 
@@ -570,7 +568,6 @@ function addLoadingMessage() {
 
     `;
 
-
     messages.appendChild(message);
 
     scrollToBottom();
@@ -588,12 +585,10 @@ function replaceLoadingMessage(text) {
     const loading =
         document.getElementById("loadingMessage");
 
-
     if (!loading) return;
 
 
     let html;
-
 
     try {
 
@@ -681,10 +676,8 @@ async function sendMessage() {
     const input =
         document.getElementById("userPrompt");
 
-
     const text =
         input.value.trim();
-
 
     if (!text) return;
 
@@ -693,33 +686,30 @@ async function sendMessage() {
         document.getElementById("sendButton");
 
 
-    /* Show chat */
+    /* SHOW CHAT */
 
     document
         .getElementById("welcome")
         .classList.add("hidden");
-
 
     document
         .getElementById("messages")
         .classList.remove("hidden");
 
 
-    /* Add user message */
+    /* SHOW USER MESSAGE */
 
     addUserMessage(text);
-
 
     input.value = "";
 
 
-    /* Add loading */
+    /* SHOW LOADING */
 
     addLoadingMessage();
 
 
     button.disabled = true;
-
 
     button.innerHTML =
         '<i class="fa-solid fa-spinner fa-spin text-xs"></i>';
@@ -727,18 +717,13 @@ async function sendMessage() {
 
     try {
 
-
         /*
          * IMPORTANT:
          *
-         * The Gemini API key is NOT here.
-         *
-         * This calls your Vercel backend:
-         *
-         * /api/chat
-         *
+         * Send BOTH:
+         * 1. Current message
+         * 2. Previous chat history
          */
-
 
         const response =
             await fetch("/api/chat", {
@@ -752,22 +737,21 @@ async function sendMessage() {
 
                 body: JSON.stringify({
 
-                    message: text
+                    message: text,
+
+                    history: chatHistory
 
                 })
 
             });
 
 
-
-        /* Read server response */
+        /* READ RESPONSE */
 
         const rawText =
             await response.text();
 
-
         let data;
-
 
         try {
 
@@ -783,23 +767,19 @@ async function sendMessage() {
         }
 
 
-
-        /* Check HTTP error */
+        /* CHECK HTTP ERROR */
 
         if (!response.ok) {
 
             throw new Error(
-
                 data.error ||
                 `Server error: ${response.status}`
-
             );
 
         }
 
 
-
-        /* Check AI answer */
+        /* CHECK ANSWER */
 
         if (
             !data.answer ||
@@ -813,8 +793,9 @@ async function sendMessage() {
         }
 
 
-
-        /* Save conversation locally */
+        /*
+         * SAVE USER MESSAGE
+         */
 
         chatHistory.push({
 
@@ -829,6 +810,10 @@ async function sendMessage() {
         });
 
 
+        /*
+         * SAVE AI MESSAGE
+         */
+
         chatHistory.push({
 
             role: "model",
@@ -842,8 +827,7 @@ async function sendMessage() {
         });
 
 
-
-        /* Show answer */
+        /* SHOW AI ANSWER */
 
         replaceLoadingMessage(
             data.answer
@@ -851,7 +835,6 @@ async function sendMessage() {
 
 
     } catch (error) {
-
 
         console.error(
             "Study-AI Error:",
@@ -866,16 +849,12 @@ async function sendMessage() {
 
         );
 
-
     } finally {
-
 
         button.disabled = false;
 
-
         button.innerHTML =
             '<i class="fa-solid fa-arrow-up text-xs"></i>';
-
 
         input.focus();
 
@@ -894,27 +873,22 @@ function copyAI(button) {
     const card =
         button.closest(".bg-white");
 
-
     if (!card) return;
 
 
     const content =
         card.querySelector(".ai-content");
 
-
     if (!content) return;
 
 
-    const text =
-        content.innerText;
+    navigator.clipboard
+        .writeText(content.innerText)
 
-
-    navigator.clipboard.writeText(text)
         .then(() => {
 
             button.innerHTML =
-                '<i class="fa-solid fa-check text-green-500 text-xs"></i>';
-
+                '<i class="fa-solid fa-check text-xs"></i>';
 
             setTimeout(() => {
 
@@ -924,6 +898,7 @@ function copyAI(button) {
             }, 1500);
 
         })
+
         .catch(() => {
 
             alert(
@@ -937,13 +912,21 @@ function copyAI(button) {
 
 
 /* =========================
-   CLEAR CHAT
+   NEW CHAT
 ========================= */
 
 function clearChat() {
 
+    /*
+     * Clear AI memory
+     */
+
     chatHistory = [];
 
+
+    /*
+     * Clear messages
+     */
 
     document.getElementById(
         "messages"
@@ -955,32 +938,22 @@ function clearChat() {
     ).classList.add("hidden");
 
 
+    /*
+     * Show welcome
+     */
+
     document.getElementById(
         "welcome"
     ).classList.remove("hidden");
 
 
+    /*
+     * Clear input
+     */
+
     document.getElementById(
         "userPrompt"
     ).value = "";
-
-}
-
-
-
-/* =========================
-   ESCAPE HTML
-========================= */
-
-function escapeHTML(text) {
-
-    const div =
-        document.createElement("div");
-
-    div.textContent =
-        text;
-
-    return div.innerHTML;
 
 }
 
@@ -993,9 +966,13 @@ function escapeHTML(text) {
 function escapeMarkdown(text) {
 
     return String(text)
+
         .replace(/\\/g, "\\\\")
+
         .replace(/\*/g, "\\*")
+
         .replace(/_/g, "\\_")
+
         .replace(/`/g, "\\`");
 
 }
