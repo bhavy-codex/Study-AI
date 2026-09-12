@@ -841,3 +841,134 @@ footer small {
     }
 
 }
+/* =========================
+   AI RESPONSE FORMATTING
+========================= */
+
+.ai-response {
+    color: var(--text);
+    font-size: 15px;
+    line-height: 1.75;
+}
+
+.ai-response p {
+    margin: 0 0 14px;
+    color: var(--text);
+}
+
+.ai-response p:last-child {
+    margin-bottom: 0;
+}
+
+.ai-response h2,
+.ai-response h3,
+.ai-response h4 {
+    margin: 20px 0 10px;
+    color: var(--text);
+    line-height: 1.3;
+}
+
+.ai-response h2 {
+    font-size: 22px;
+}
+
+.ai-response h3 {
+    font-size: 18px;
+}
+
+.ai-response h4 {
+    font-size: 16px;
+}
+
+.ai-response ul,
+.ai-response ol {
+    margin: 10px 0 16px 22px;
+    padding: 0;
+}
+
+.ai-response li {
+    margin-bottom: 7px;
+    padding-left: 4px;
+}
+
+.ai-response strong {
+    color: var(--text);
+    font-weight: 700;
+}
+
+.inline-code {
+    padding: 2px 6px;
+    border-radius: 6px;
+    background: var(--soft);
+    font-family: monospace;
+    font-size: 13px;
+}
+
+.ai-code {
+    margin: 15px 0;
+    padding: 15px;
+    overflow-x: auto;
+    border-radius: 12px;
+    background: var(--soft);
+    border: 1px solid var(--border);
+}
+
+.ai-code code {
+    font-family: monospace;
+    font-size: 13px;
+    line-height: 1.6;
+    white-space: pre;
+}
+
+.answer-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 8px;
+}
+
+.copy-button {
+    border: 1px solid var(--border);
+    background: var(--surface);
+    color: var(--muted);
+    padding: 5px 9px;
+    border-radius: 8px;
+    font-size: 11px;
+    cursor: pointer;
+}
+
+.copy-button:hover {
+    color: var(--text);
+    background: var(--soft);
+}
+
+.thinking {
+    color: var(--muted) !important;
+}
+
+.thinking span {
+    animation: thinkingDots 1.4s infinite;
+}
+
+.thinking span:nth-child(2) {
+    animation-delay: 0.2s;
+}
+
+.thinking span:nth-child(3) {
+    animation-delay: 0.4s;
+}
+
+@keyframes thinkingDots {
+
+    0%,
+    60%,
+    100% {
+        opacity: 0.25;
+    }
+
+    30% {
+        opacity: 1;
+    }
+
+}
